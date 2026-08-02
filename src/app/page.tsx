@@ -188,7 +188,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="grid w-full gap-6 pb-16 sm:grid-cols-3">
+        <div className="grid w-full gap-6 pb-16 sm:grid-cols-2 lg:grid-cols-4">
           {TOOLS.map((tool) => (
             <Card key={tool.name} className="flex flex-col gap-4 border-[color:var(--titer-border)] py-8">
               <CardHeader className="items-center text-center">
