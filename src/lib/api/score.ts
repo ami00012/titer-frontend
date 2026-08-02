@@ -26,6 +26,15 @@ export interface ParagraphScore {
   insufficientLength: boolean;
 }
 
+export interface EmotionAnalysis {
+  dimension: string;
+  titer: number;
+  band: string;
+  findings: Finding[];
+  /** One entry per emotion (joy/trust/fear/surprise/sadness/disgust/anger/anticipation), 0-100. Empty on a re-fetched cache-hit scan -- see EmotionAnalysisDimension's backend javadoc. */
+  components: Record<string, number>;
+}
+
 export interface ScoreResponse {
   id: string;
   titer: number;
@@ -37,6 +46,10 @@ export interface ScoreResponse {
   x: XMeasurement | null;
   /** Rules-layer-only per-paragraph breakdown; empty below 3 scorable paragraphs or on a re-fetched past scan. */
   paragraphs: ParagraphScore[];
+  /** Echoes the request's targetAudience, if any -- null for the common no-audience case. */
+  targetAudience: string | null;
+  /** Present only when the request asked for emotionAnalysis=true. */
+  emotionAnalysis: EmotionAnalysis | null;
 }
 
 export interface UnmeasurableXError {
@@ -57,10 +70,15 @@ export function isUnmeasurableX(error: unknown): error is ApiError & { body: { e
  * the article instead of scoring the literal string. Same endpoint, same
  * response shape, no separate URL-scoring call needed.
  */
-export function scoreText(text: string, x?: string) {
+export function scoreText(text: string, x?: string, targetAudience?: string, emotionAnalysis?: boolean) {
   return apiFetch<ScoreResponse>("/v1/score", {
     method: "POST",
-    body: JSON.stringify(x ? { text, x } : { text }),
+    body: JSON.stringify({
+      text,
+      ...(x ? { x } : {}),
+      ...(targetAudience ? { targetAudience } : {}),
+      ...(emotionAnalysis ? { emotionAnalysis } : {}),
+    }),
   });
 }
 
@@ -72,10 +90,12 @@ export function scoreText(text: string, x?: string) {
  * POST /v1/score/upload (multipart, since a File can't ride a JSON body) but
  * returns the identical ScoreResponse shape, so the UI needs no separate renderer.
  */
-export function scoreVideo(file: File, x?: string) {
+export function scoreVideo(file: File, x?: string, targetAudience?: string, emotionAnalysis?: boolean) {
   const form = new FormData();
   form.append("file", file);
   if (x) form.append("x", x);
+  if (targetAudience) form.append("targetAudience", targetAudience);
+  if (emotionAnalysis) form.append("emotionAnalysis", "true");
 
   return apiFetch<ScoreResponse>("/v1/score/upload", {
     method: "POST",

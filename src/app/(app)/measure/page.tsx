@@ -11,7 +11,7 @@ import { TiterDial } from "@/components/titer/titer-dial";
 import { FindingsList } from "@/components/titer/findings-list";
 import { HeatStrip } from "@/components/titer/heat-strip";
 import { ApiError } from "@/lib/api/client";
-import { scoreText, scoreVideo, isUnmeasurableX, type ParagraphScore, type ScoreResponse } from "@/lib/api/score";
+import { scoreText, scoreVideo, isUnmeasurableX, type EmotionAnalysis, type ParagraphScore, type ScoreResponse } from "@/lib/api/score";
 import { track } from "@/lib/analytics";
 
 const MIN_LENGTH = 100;
@@ -23,7 +23,12 @@ type Mode = "text" | "url" | "video";
 // "measure X" is the same capability regardless of content source -- text,
 // URL, and video all carry an optional x through to the same backend
 // dual-dimension flow (see ScoreService.scoreWithX / scoreVideo).
-type ScoreVars = { kind: "text"; input: string; x?: string } | { kind: "video"; file: File; x?: string };
+// targetAudience and emotionAnalysis are two independent additive options
+// (see MeasureService.audienceContextNote / EmotionAnalysisDimension) --
+// either or both can be set alongside x, or omitted entirely.
+type ScoreVars =
+  | { kind: "text"; input: string; x?: string; targetAudience?: string; emotionAnalysis?: boolean }
+  | { kind: "video"; file: File; x?: string; targetAudience?: string; emotionAnalysis?: boolean };
 
 export default function MeasurePage() {
   const [mode, setMode] = useState<Mode>("text");
@@ -31,13 +36,18 @@ export default function MeasurePage() {
   const [url, setUrl] = useState("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [x, setX] = useState("");
+  const [targetAudience, setTargetAudience] = useState("");
+  const [emotionAnalysis, setEmotionAnalysis] = useState(false);
   const [selectedParagraph, setSelectedParagraph] = useState<ParagraphScore | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const mutation = useMutation<ScoreResponse, ApiError, ScoreVars>({
-    mutationFn: (vars) => (vars.kind === "video" ? scoreVideo(vars.file, vars.x) : scoreText(vars.input, vars.x)),
+    mutationFn: (vars) =>
+      vars.kind === "video"
+        ? scoreVideo(vars.file, vars.x, vars.targetAudience, vars.emotionAnalysis)
+        : scoreText(vars.input, vars.x, vars.targetAudience, vars.emotionAnalysis),
     onMutate: (vars) => {
-      track("scan_started", { mode: vars.kind, hasCustomX: Boolean(vars.x) });
+      track("scan_started", { mode: vars.kind, hasCustomX: Boolean(vars.x), hasTargetAudience: Boolean(vars.targetAudience), emotionAnalysis: Boolean(vars.emotionAnalysis) });
     },
     onSuccess: (data) => {
       setSelectedParagraph(null);
@@ -83,12 +93,22 @@ export default function MeasurePage() {
       ? `Measure ${trimmedX}`
       : "Measure Emotional Tone";
 
+  const trimmedAudience = targetAudience.trim();
+
   function handleAnalyze() {
     if (mode === "video") {
-      if (videoFile) mutation.mutate({ kind: "video", file: videoFile, x: trimmedX || undefined });
+      if (videoFile) {
+        mutation.mutate({
+          kind: "video", file: videoFile, x: trimmedX || undefined,
+          targetAudience: trimmedAudience || undefined, emotionAnalysis,
+        });
+      }
       return;
     }
-    mutation.mutate({ kind: "text", input: mode === "url" ? trimmedUrl : text, x: trimmedX || undefined });
+    mutation.mutate({
+      kind: "text", input: mode === "url" ? trimmedUrl : text, x: trimmedX || undefined,
+      targetAudience: trimmedAudience || undefined, emotionAnalysis,
+    });
   }
 
   // Explicit args, not the closed-over `x` state -- setX() + mutate() in the same
@@ -97,10 +117,18 @@ export default function MeasurePage() {
   function handleSuggestionClick(suggestion: string) {
     setX(suggestion);
     if (mode === "video") {
-      if (videoFile) mutation.mutate({ kind: "video", file: videoFile, x: suggestion });
+      if (videoFile) {
+        mutation.mutate({
+          kind: "video", file: videoFile, x: suggestion,
+          targetAudience: trimmedAudience || undefined, emotionAnalysis,
+        });
+      }
       return;
     }
-    mutation.mutate({ kind: "text", input: mode === "url" ? trimmedUrl : text, x: suggestion });
+    mutation.mutate({
+      kind: "text", input: mode === "url" ? trimmedUrl : text, x: suggestion,
+      targetAudience: trimmedAudience || undefined, emotionAnalysis,
+    });
   }
 
   function switchMode(next: Mode) {
@@ -192,6 +220,30 @@ export default function MeasurePage() {
               />
             </div>
 
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="audience-input">Target audience (optional)</Label>
+              <Input
+                id="audience-input"
+                value={targetAudience}
+                onChange={(event) => setTargetAudience(event.target.value)}
+                placeholder="e.g. developers evaluating a CLI tool, first-time parents…"
+                maxLength={200}
+              />
+              <p className="text-xs text-muted-foreground">
+                Scores how well this will land with this specific reader, not just in the abstract.
+              </p>
+            </div>
+
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={emotionAnalysis}
+                onChange={(event) => setEmotionAnalysis(event.target.checked)}
+                className="h-4 w-4 rounded border-input"
+              />
+              Also run general emotion analysis
+            </label>
+
             <div>
               <Button onClick={handleAnalyze} disabled={!canSubmit}>
                 {buttonLabel}
@@ -270,6 +322,10 @@ function ResultView({
 
   return (
     <div className="flex w-full flex-col items-center gap-6">
+      {response.targetAudience ? (
+        <Badge variant="outline">Scored for: {response.targetAudience}</Badge>
+      ) : null}
+
       <div className="flex flex-col items-center gap-2">
         {/* emotional_tone's titer is "how strongly this connects emotionally" --
             100 = highly resonant (ScoreCombiner.verdict / emotional_tone.yaml bands). */}
@@ -306,6 +362,37 @@ function ResultView({
       ) : (
         <FindingsList findings={primaryFindings} />
       )}
+
+      {response.emotionAnalysis ? <EmotionBreakdown emotionAnalysis={response.emotionAnalysis} /> : null}
+    </div>
+  );
+}
+
+/** Proportional bar list, not eight separate dials -- a general breakdown across joy/trust/fear/surprise/sadness/disgust/anger/anticipation reads better as one compact ranked list than eight competing circles. */
+function EmotionBreakdown({ emotionAnalysis }: { emotionAnalysis: EmotionAnalysis }) {
+  const entries = Object.entries(emotionAnalysis.components).sort(([, a], [, b]) => b - a);
+  if (entries.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-3 border-t border-border pt-4">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-foreground">Emotion analysis</span>
+        <Badge variant="secondary">{capitalize(emotionAnalysis.band)}</Badge>
+      </div>
+      <div className="flex flex-col gap-2">
+        {entries.map(([emotion, score]) => (
+          <div key={emotion} className="flex items-center gap-3 text-sm">
+            <span className="w-24 shrink-0 capitalize text-secondary-foreground">{emotion}</span>
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-primary" style={{ width: `${score}%` }} />
+            </div>
+            <span className="w-8 shrink-0 text-right text-muted-foreground">{score}</span>
+          </div>
+        ))}
+      </div>
+      <FindingsList findings={emotionAnalysis.findings} />
     </div>
   );
 }
