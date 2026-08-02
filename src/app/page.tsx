@@ -47,8 +47,13 @@ const TOOLS = [
     // of leaving this card looking sparse next to them.
     direction: "higher-is-better" as const,
     demoScore: 74,
-    href: "/pricing",
-    cta: "upgrade" as const,
+    // Straight to the real feature, same as Score/Visibility -- it's
+    // login-gated (no anonymous batch-audit entry point), so an unauthenticated
+    // click lands on /login first, same as clicking into any gated app page
+    // from a marketing site. Linking to /pricing instead was the actual bug
+    // a user flagged: a product card shouldn't redirect to a pricing table.
+    href: "/quality",
+    cta: "try" as const,
   },
   {
     name: "Titer Compliance",
@@ -196,7 +201,10 @@ export default function Home() {
 
         <div className="grid w-full gap-6 pb-16 sm:grid-cols-2 lg:grid-cols-4">
           {TOOLS.map((tool) => (
-            <Card key={tool.name} className="flex flex-col gap-4 border-[color:var(--titer-border)] py-8">
+            <Card
+              key={tool.name}
+              className="flex flex-col gap-4 border-[color:var(--titer-border)] py-8 shadow-[0_2px_10px_rgba(17,19,24,0.06)] transition-shadow hover:shadow-[0_8px_24px_rgba(17,19,24,0.10)]"
+            >
               <CardHeader className="items-center text-center">
                 <span className="text-xs font-medium tracking-wide text-[color:var(--titer-muted)] uppercase">
                   {tool.pillar}
@@ -233,7 +241,7 @@ export default function Home() {
                       render={<Link href={tool.href} />}
                       className="rounded-full"
                     >
-                      {tool.cta === "upgrade" ? "See pricing" : "Try it"}
+                      Try it
                     </Button>
                   )}
                 </div>
