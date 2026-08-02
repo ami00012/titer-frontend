@@ -41,6 +41,12 @@ const TOOLS = [
     // (PlanCatalog's batchUrlsPerJob) is a Score-plan entitlement, unlocked
     // starting on Pro. See PlanCatalog.java; no standalone Quality price exists.
     price: "Included on Score Pro+",
+    // Illustrative, same as Score/Visibility's demoScore above -- not a live
+    // scan (there's no anonymous entry point for a login-gated batch audit),
+    // just kept visually consistent with the other three cards' dial instead
+    // of leaving this card looking sparse next to them.
+    direction: "higher-is-better" as const,
+    demoScore: 74,
     href: "/pricing",
     cta: "upgrade" as const,
   },
@@ -217,6 +223,7 @@ export default function Home() {
                   </>
                 ) : tool.cta === "upgrade" ? (
                   <>
+                    <TiterDial score={tool.demoScore} direction={tool.direction} size={120} />
                     <span className="text-sm text-[color:var(--titer-muted)]">{tool.price}</span>
                     <span className="text-sm text-[color:var(--titer-muted)]">{tool.buyer}</span>
                     <Button
