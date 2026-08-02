@@ -6,14 +6,15 @@ import { TiterDial } from "@/components/titer/titer-dial";
 import { RequestDialog } from "@/components/marketing/request-dialog";
 import { HeroScanner } from "@/components/marketing/hero-scanner";
 
-// One instrument, three pillars: MEASURE (one piece of content) / AUDIT (many
-// pieces against a policy) / WATCH (your brand in AI answers). Quality is no
-// longer a separate product here -- site-wide auditing is Score run at scale
-// (see product/score's FAQ), not its own card. Compliance (the AUDIT pillar)
-// is real (built C1-C9), but sold as an enterprise demo, not self-serve --
-// no anonymous "try it" score to fabricate, so its card leads with a demo
-// CTA instead of a dial, same honest-scaffold discipline as before, just for
-// a different reason now (sales model, not "doesn't exist yet").
+// Four pillars: MEASURE (one piece of content) / QUALITY (every page on a
+// site) / AUDIT (many pieces against a policy) / WATCH (your brand in AI
+// answers). Quality has its own logged-in page at /quality now, so it gets
+// its own card here too. Compliance (the AUDIT pillar) is real (built
+// C1-C9), but sold as an enterprise demo, not self-serve -- no anonymous
+// "try it" score to fabricate, so its card leads with a demo CTA instead of
+// a dial, same honest-scaffold discipline as before, just for a different
+// reason now (sales model, not "doesn't exist yet"). Quality shares that
+// same demo-CTA shape since it also requires login, no anonymous dial.
 const TOOLS = [
   {
     name: "Titer Score",
@@ -30,6 +31,18 @@ const TOOLS = [
     // hero CTA both need the free path, not the gated product route.
     href: "/measure",
     cta: "try" as const,
+  },
+  {
+    name: "Titer Quality",
+    pillar: "Quality",
+    tagline: "Audit every page on a site against Google's quality bar, your brand voice, or your compliance policy.",
+    buyer: "for SEO & content teams",
+    // Not a separately-priced product -- batch/site-wide auditing
+    // (PlanCatalog's batchUrlsPerJob) is a Score-plan entitlement, unlocked
+    // starting on Pro. See PlanCatalog.java; no standalone Quality price exists.
+    price: "Included on Score Pro+",
+    href: "/pricing",
+    cta: "upgrade" as const,
   },
   {
     name: "Titer Compliance",
@@ -201,6 +214,19 @@ export default function Home() {
                         </Button>
                       }
                     />
+                  </>
+                ) : tool.cta === "upgrade" ? (
+                  <>
+                    <span className="text-sm text-[color:var(--titer-muted)]">{tool.price}</span>
+                    <span className="text-sm text-[color:var(--titer-muted)]">{tool.buyer}</span>
+                    <Button
+                      variant="outline"
+                      nativeButton={false}
+                      render={<Link href={tool.href} />}
+                      className="rounded-full"
+                    >
+                      See pricing
+                    </Button>
                   </>
                 ) : (
                   <>
