@@ -206,12 +206,18 @@ export default function Home() {
                   {tool.tagline}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-col items-center gap-4">
+              <CardContent className="flex flex-1 flex-col items-center gap-4">
                 {tool.cta === "demo" ? (
-                  <>
-                    <Badge variant="secondary">Enterprise</Badge>
-                    <span className="text-sm text-[color:var(--titer-muted)]">{tool.price}</span>
-                    <span className="text-sm text-[color:var(--titer-muted)]">{tool.buyer}</span>
+                  <Badge variant="secondary">Enterprise</Badge>
+                ) : (
+                  <TiterDial score={tool.demoScore} direction={tool.direction} size={120} />
+                )}
+                {/* Pinned to the bottom of the (flex-1) card regardless of how tall the
+                    dial/badge above it is, so all four buttons in the row line up. */}
+                <div className="mt-auto flex flex-col items-center gap-4">
+                  <span className="text-sm text-[color:var(--titer-muted)]">{tool.price}</span>
+                  <span className="text-sm text-[color:var(--titer-muted)]">{tool.buyer}</span>
+                  {tool.cta === "demo" ? (
                     <RequestDialog
                       mode="demo"
                       trigger={
@@ -220,36 +226,17 @@ export default function Home() {
                         </Button>
                       }
                     />
-                  </>
-                ) : tool.cta === "upgrade" ? (
-                  <>
-                    <TiterDial score={tool.demoScore} direction={tool.direction} size={120} />
-                    <span className="text-sm text-[color:var(--titer-muted)]">{tool.price}</span>
-                    <span className="text-sm text-[color:var(--titer-muted)]">{tool.buyer}</span>
+                  ) : (
                     <Button
                       variant="outline"
                       nativeButton={false}
                       render={<Link href={tool.href} />}
                       className="rounded-full"
                     >
-                      See pricing
+                      {tool.cta === "upgrade" ? "See pricing" : "Try it"}
                     </Button>
-                  </>
-                ) : (
-                  <>
-                    <TiterDial score={tool.demoScore} direction={tool.direction} size={120} />
-                    <span className="text-sm text-[color:var(--titer-muted)]">{tool.price}</span>
-                    <span className="text-sm text-[color:var(--titer-muted)]">{tool.buyer}</span>
-                    <Button
-                      variant="outline"
-                      nativeButton={false}
-                      render={<Link href={tool.href} />}
-                      className="rounded-full"
-                    >
-                      Try it
-                    </Button>
-                  </>
-                )}
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}
