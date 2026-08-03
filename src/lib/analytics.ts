@@ -15,7 +15,8 @@ type AnalyticsEvent =
   | "compliance_policy_version_saved"
   | "compliance_policy_reset_to_pack"
   | "compliance_policy_updated_from_pack"
-  | "quality_audit_started";
+  | "quality_audit_started"
+  | "waitlist_signup";
 
 // NOTE: no analytics provider is wired up yet (that's build-order step 8:
 // analytics + SEO + JSON-LD + Lighthouse gate). Until then this pushes to

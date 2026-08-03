@@ -9,6 +9,7 @@ const BASE_URL = "https://titer.dev";
 // since a redirect target shouldn't itself be in the sitemap.
 const ROUTES = [
   "",
+  "/coming-soon",
   "/measure",
   "/product/score",
   "/product/visibility",
