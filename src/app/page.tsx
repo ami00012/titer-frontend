@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { TiterDial } from "@/components/titer/titer-dial";
 import { RequestDialog } from "@/components/marketing/request-dialog";
 import { HeroScanner } from "@/components/marketing/hero-scanner";
+import { LiveDemoAnimation } from "@/components/marketing/live-demo-animation";
 
 // Four pillars: MEASURE (one piece of content) / QUALITY (every page on a
 // site) / AUDIT (many pieces against a policy) / WATCH (your brand in AI
@@ -197,6 +198,17 @@ export default function Home() {
               </Button>
             }
           />
+        </div>
+
+        <div className="flex w-full flex-col items-center gap-4 border-t border-[color:var(--titer-border)] py-16">
+          <h2 className="text-xl font-semibold text-[color:var(--titer-ink)]">
+            One instrument, every pillar
+          </h2>
+          <p className="max-w-md text-center text-sm text-[color:var(--titer-muted)]">
+            The scanner above is Score, live. Here&apos;s what the same paste-and-measure loop looks
+            like across Compliance and Visibility too.
+          </p>
+          <LiveDemoAnimation />
         </div>
 
         <div className="grid w-full gap-6 pb-16 sm:grid-cols-2 lg:grid-cols-4">

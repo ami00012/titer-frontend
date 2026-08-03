@@ -39,7 +39,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <Link href="/dashboard" className="text-lg font-semibold">
             Titer
           </Link>
-          {devBypass ? <Badge variant="destructive">Dev mode — auth bypassed</Badge> : null}
+          {devBypass ? (
+            <>
+              <Badge variant="destructive">Dev mode — auth bypassed</Badge>
+              <Link href="/" className="text-sm text-secondary-foreground hover:text-foreground hover:underline">
+                View marketing site →
+              </Link>
+            </>
+          ) : null}
           <nav className="flex items-center gap-4 text-sm text-secondary-foreground">
             {NAV.map((item) => (
               <Link key={item.href} href={item.href} className="hover:text-foreground">
