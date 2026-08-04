@@ -75,6 +75,14 @@ export default function CompliancePage() {
           </p>
         </div>
 
+        {/* Pinned right under the heading, not after the (potentially long,
+            multi-row) pack grid -- a failed "Use this pack" click otherwise
+            produces an error the user can't see without scrolling past
+            every pack card below it. */}
+        {fromPackMutation.isError ? (
+          <p className="text-sm text-destructive">{apiErrorMessage(fromPackMutation.error, "Couldn't create the policy.")}</p>
+        ) : null}
+
         {packsQuery.isPending ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : packsQuery.isError ? (
@@ -91,10 +99,6 @@ export default function CompliancePage() {
             ))}
           </div>
         )}
-
-        {fromPackMutation.isError ? (
-          <p className="text-sm text-destructive">{apiErrorMessage(fromPackMutation.error, "Couldn't create the policy.")}</p>
-        ) : null}
       </section>
     </div>
   );
