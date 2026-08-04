@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isDevAuthBypassEnabled } from "@/lib/dev-bypass";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/score", "/quality", "/visibility", "/settings"];
+const PROTECTED_PREFIXES = ["/dashboard", "/measure", "/score", "/quality", "/visibility", "/settings"];
 
 export async function updateSession(request: NextRequest) {
   if (isDevAuthBypassEnabled()) {

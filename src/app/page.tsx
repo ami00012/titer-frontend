@@ -27,9 +27,9 @@ const TOOLS = [
     // see ScoreCombiner.verdict / emotional_tone.yaml bands on the backend.
     direction: "higher-is-better" as const,
     demoScore: 92,
-    // /measure is the anonymous, no-signup scanner (see PROTECTED_PREFIXES in
-    // src/lib/supabase/proxy.ts) -- /score requires login. This card and the
-    // hero CTA both need the free path, not the gated product route.
+    // /measure is login-gated like every other scoring path (see
+    // PROTECTED_PREFIXES in src/lib/supabase/proxy.ts) -- an unauthenticated
+    // click lands on /login first, same as Quality's card below.
     href: "/measure",
     cta: "try" as const,
   },
@@ -182,7 +182,7 @@ export default function Home() {
           </h1>
           <p className="max-w-xl text-lg text-[color:var(--titer-muted)]">
             One instrument. Point it at any text, name what you need to know,
-            get a calibrated score with the evidence behind it. Try it right here.
+            get a calibrated score with the evidence behind it. Paste it below to get started.
           </p>
           <div className="w-full pt-4">
             <HeroScanner />

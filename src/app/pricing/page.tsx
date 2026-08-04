@@ -8,7 +8,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "Titer pricing",
   description:
-    "Free scanning with no signup, then Pro, Studio, Agency, and Business plans for Titer Score, Quality, and Visibility.",
+    "Free, Pro, Studio, Agency, and Business plans for Titer Score, Quality, and Visibility.",
 };
 
 const BILLING_FAQ = [

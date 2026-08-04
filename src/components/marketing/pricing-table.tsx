@@ -26,7 +26,7 @@ const TIERS: Tier[] = [
     monthly: 0,
     annual: 0,
     cta: "free",
-    features: ["Titer Score, no signup required", "3 scans a day"],
+    features: ["Titer Score", "15 scans a month"],
   },
   {
     name: "Pro",

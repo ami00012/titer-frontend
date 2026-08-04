@@ -10,7 +10,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "Titer Score — how strongly your writing connects emotionally",
   description:
-    "Paste text, a URL, or a video and get a 0–100 emotional-tone score with the exact components and fixes behind it. Free, no signup.",
+    "Paste text, a URL, or a video and get a 0–100 emotional-tone score with the exact components and fixes behind it. Free plan available.",
 };
 
 const REASONS = [
