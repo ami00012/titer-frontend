@@ -5,7 +5,7 @@ export interface Finding {
   ruleId: string;
   severity: "low" | "medium" | "high" | string;
   explanation: string;
-  suggestion: string;
+  suggestion: string | null;
 }
 
 export interface XMeasurement {

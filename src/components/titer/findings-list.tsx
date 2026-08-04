@@ -11,6 +11,7 @@ function severityVariant(severity: string): "destructive" | "secondary" | "outli
 }
 
 function copyFix(finding: Finding) {
+  if (!finding.suggestion) return;
   navigator.clipboard.writeText(finding.suggestion);
   toast.success("Fix copied.");
   track("fix_clicked", { ruleId: finding.ruleId, severity: finding.severity });
@@ -33,12 +34,14 @@ export function FindingsList({ findings }: { findings: Finding[] }) {
               <span className="font-medium">{finding.ruleId}</span>
             </div>
             <p className="mt-1 text-secondary-foreground">{finding.explanation}</p>
-            <div className="mt-1 flex items-center justify-between gap-2">
-              <p className="text-muted-foreground">Suggestion: {finding.suggestion}</p>
-              <Button size="xs" variant="outline" onClick={() => copyFix(finding)}>
-                Copy fix
-              </Button>
-            </div>
+            {finding.suggestion ? (
+              <div className="mt-1 flex items-center justify-between gap-2">
+                <p className="text-muted-foreground">Suggestion: {finding.suggestion}</p>
+                <Button size="xs" variant="outline" onClick={() => copyFix(finding)}>
+                  Copy fix
+                </Button>
+              </div>
+            ) : null}
           </li>
         ))}
       </ul>
