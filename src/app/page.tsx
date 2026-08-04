@@ -71,8 +71,12 @@ const TOOLS = [
     price: "From $99/mo",
     direction: "higher-is-better" as const,
     demoScore: 61,
-    href: "/product/visibility",
-    cta: "try" as const,
+    // Visibility is demo-led, not self-serve (see the "Book a demo leads"
+    // note on /product/visibility's own page) -- cta stays "demo" even
+    // though it keeps a dial like Score/Quality for visual consistency
+    // across the row. A "Try it" button here would promise something
+    // self-serve that doesn't exist yet.
+    cta: "demo" as const,
   },
 ];
 
@@ -218,10 +222,13 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-1 flex-col items-center gap-4">
-                {tool.cta === "demo" ? (
-                  <Badge variant="secondary">Enterprise</Badge>
-                ) : (
+                {/* Dial vs. badge tracks whether there's an illustrative score at all,
+                    independent of cta -- Visibility keeps its dial for visual parity
+                    with Score/Quality even though its cta is "demo", not "try". */}
+                {tool.demoScore !== undefined ? (
                   <TiterDial score={tool.demoScore} direction={tool.direction} size={120} />
+                ) : (
+                  <Badge variant="secondary">Enterprise</Badge>
                 )}
                 {/* Pinned to the bottom of the (flex-1) card regardless of how tall the
                     dial/badge above it is, so all four buttons in the row line up. */}
