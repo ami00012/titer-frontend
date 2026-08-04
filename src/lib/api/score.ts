@@ -57,6 +57,20 @@ export interface UnmeasurableXError {
   suggestions: string[];
 }
 
+export interface ScanSummary {
+  id: string;
+  tool: string;
+  titer: number;
+  verdict: string;
+  wordCount: number | null;
+  createdAt: string;
+}
+
+/** GET /v1/scans -- most recent first, scoped to the caller's workspace. */
+export function listScans() {
+  return apiFetch<ScanSummary[]>("/v1/scans");
+}
+
 /** True when `error` is the 422 unmeasurable_x envelope from POST /v1/score. */
 export function isUnmeasurableX(error: unknown): error is ApiError & { body: { error: { detail: UnmeasurableXError } } } {
   if (!(error instanceof ApiError) || error.status !== 422) return false;
