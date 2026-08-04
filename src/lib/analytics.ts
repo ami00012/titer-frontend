@@ -16,6 +16,8 @@ type AnalyticsEvent =
   | "compliance_policy_reset_to_pack"
   | "compliance_policy_updated_from_pack"
   | "quality_audit_started"
+  | "visibility_brand_created"
+  | "visibility_check_started"
   | "waitlist_signup";
 
 // NOTE: no analytics provider is wired up yet (that's build-order step 8:
