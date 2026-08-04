@@ -9,7 +9,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "Titer Visibility — how often AI answers mention and cite your brand",
   description:
-    "Track what ChatGPT, Perplexity, Google AI Overviews, and Gemini say about your brand, and catch it when they get a fact wrong.",
+    "Track what Claude says about your brand, and catch it when it gets a fact wrong. More engines as real API access opens up.",
 };
 
 const REASONS = [
@@ -27,11 +27,14 @@ const WHO = [
 const FAQ = [
   {
     q: "Which AI engines do you track?",
-    a: "ChatGPT, Perplexity, Google AI Overviews, and Gemini today, with more added as they matter.",
+    a: "Claude today — the only engine with a real, working integration. ChatGPT and Perplexity are next once "
+      + "API access is in place; Google AI Overviews has no public API at all, so it may never be directly "
+      + "trackable this way.",
   },
   {
     q: "How do you catch wrong facts?",
-    a: "Titer asks each engine about your brand on a schedule and flags answers that don't match the facts you give it.",
+    a: "Titer asks Claude your customers' real questions and flags anything in the answer that looks factually "
+      + "off about your brand. Runs on demand today; scheduled/recurring checks are on the roadmap.",
   },
   {
     q: "Is this the same as social media monitoring?",
@@ -43,44 +46,31 @@ const FAQ = [
   },
 ];
 
-type Status = "good" | "warning" | "critical" | "none";
-
-const CHANNELS: { name: string; status: Status; label: string }[] = [
-  { name: "ChatGPT", status: "good", label: "Mentioned accurately" },
-  { name: "Perplexity", status: "warning", label: "Mentioned, price outdated" },
-  { name: "Google AI Overviews", status: "good", label: "Mentioned accurately" },
-  { name: "Gemini", status: "critical", label: "Mentioned, price wrong" },
-  { name: "YouTube", status: "none", label: "Not mentioned" },
-];
-
-const STATUS_VAR: Record<Exclude<Status, "none">, string> = {
-  good: "--status-good",
-  warning: "--status-warning",
-  critical: "--status-critical",
-};
-
+/**
+ * Shaped like the real product (mentioned/cited/position/sentiment,
+ * accuracy flags), not a hypothetical multi-engine dashboard -- Claude is
+ * the one engine actually wired up today, see the FAQ answer above.
+ */
 function VisibilityExample() {
   return (
-    <div className="flex flex-col gap-6 sm:max-w-xl">
-      <Card className="flex flex-col border-[color:var(--titer-border)] p-0">
-        {CHANNELS.map((channel) => (
-          <div
-            key={channel.name}
-            className="flex items-center justify-between border-b border-[color:var(--titer-border)] px-4 py-3 last:border-b-0"
-          >
-            <span className="text-[color:var(--titer-ink)]">{channel.name}</span>
-            <span className="flex items-center gap-2 text-sm text-[color:var(--titer-muted)]">
-              {channel.status !== "none" ? (
-                <span
-                  className="size-2 rounded-full"
-                  style={{ backgroundColor: `var(${STATUS_VAR[channel.status]})` }}
-                  aria-hidden="true"
-                />
-              ) : null}
-              {channel.label}
-            </span>
-          </div>
-        ))}
+    <div className="flex flex-col gap-4 sm:max-w-xl">
+      <Card className="flex flex-col gap-3 border-[color:var(--titer-border)] p-4">
+        <p className="text-sm text-[color:var(--titer-muted)]">Asked Claude:</p>
+        <p className="text-[color:var(--titer-ink)]">&quot;What&apos;s a good tool for tracking team OKRs?&quot;</p>
+        <div className="flex flex-wrap items-center gap-2 pt-1 text-sm">
+          <span className="rounded-full bg-[color:var(--status-good)]/15 px-2.5 py-1 text-[color:var(--titer-ink)]">
+            Mentioned
+          </span>
+          <span className="rounded-full bg-[color:var(--status-good)]/15 px-2.5 py-1 text-[color:var(--titer-ink)]">
+            Cited
+          </span>
+          <span className="rounded-full border border-[color:var(--titer-border)] px-2.5 py-1 text-[color:var(--titer-muted)]">
+            Position 2
+          </span>
+          <span className="rounded-full border border-[color:var(--titer-border)] px-2.5 py-1 text-[color:var(--titer-muted)]">
+            Neutral
+          </span>
+        </div>
       </Card>
 
       <div
@@ -93,10 +83,10 @@ function VisibilityExample() {
             style={{ backgroundColor: "var(--status-critical)" }}
             aria-hidden="true"
           />
-          <span className="font-semibold text-[color:var(--titer-ink)]">Inaccurate</span>
+          <span className="font-semibold text-[color:var(--titer-ink)]">Accuracy flag</span>
         </span>
         <p className="mt-1 text-[color:var(--titer-ink)]">
-          Gemini says your price is $99 — it&apos;s $49.
+          The answer describes a feature your product doesn&apos;t actually have.
         </p>
       </div>
     </div>

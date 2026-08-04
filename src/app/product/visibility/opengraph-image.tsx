@@ -7,6 +7,6 @@ export const alt = "Titer Visibility — how often AI answers mention and cite y
 export default function Image() {
   return renderOgImage(
     "What AI answers say about your brand",
-    "Track mentions across ChatGPT, Perplexity, and Google — and catch it when they're wrong.",
+    "Track mentions from Claude — and catch it when it's wrong.",
   );
 }

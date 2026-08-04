@@ -13,13 +13,16 @@ export interface ApiKey {
   rawKey: string | null;
 }
 
-/** Mirrors com.titerbackend.apikey.ApiScope's wire values. quality:write/visibility:read/dimensions:manage are issuable but don't gate anything yet. */
+/** Mirrors com.titerbackend.apikey.ApiScope's wire values. quality:write/dimensions:manage are issuable but don't gate anything yet. */
 export const API_SCOPES = [
   { value: "score:read", label: "Score: read" },
   { value: "score:write", label: "Score: write" },
   { value: "quality:write", label: "Quality: write" },
   { value: "visibility:read", label: "Visibility: read" },
+  { value: "visibility:write", label: "Visibility: write" },
   { value: "dimensions:manage", label: "Dimensions: manage" },
+  { value: "compliance:read", label: "Compliance: read" },
+  { value: "compliance:write", label: "Compliance: write" },
 ] as const;
 
 export function listApiKeys() {

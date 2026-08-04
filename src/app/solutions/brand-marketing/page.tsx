@@ -6,17 +6,17 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "Titer for brand & marketing",
   description:
-    "See what ChatGPT, Perplexity, Google AI Overviews, and Gemini say about your brand, and catch it when they get a fact wrong.",
+    "See what Claude says about your brand, and catch it when it gets a fact wrong.",
 };
 
 const TOOL_MAPPINGS = [
   {
     tool: "Titer Visibility",
-    description: "Ask each engine about your brand on a schedule, and see exactly what comes back.",
+    description: "Ask Claude your customers' real questions on demand, and see exactly what comes back.",
   },
   {
     tool: "Accuracy alerts",
-    description: "Get flagged the moment an engine states a wrong price, feature, or claim.",
+    description: "Get flagged when an answer states a wrong price, feature, or claim about your brand.",
   },
   {
     tool: "Titer Score",
@@ -25,13 +25,13 @@ const TOOL_MAPPINGS = [
 ];
 
 const WORKFLOW = [
-  { step: "1", title: "Give Titer the facts", body: "Pricing, features, positioning — the facts to check answers against." },
-  { step: "2", title: "Titer asks each engine", body: "ChatGPT, Perplexity, Google AI Overviews, and Gemini, on a schedule." },
-  { step: "3", title: "Review what's wrong, engine by engine", body: "See flagged answers and exactly where they're wrong." },
+  { step: "1", title: "Give Titer the facts", body: "Your brand, domain, and named competitors — the facts to check answers against." },
+  { step: "2", title: "Titer asks Claude", body: "The real questions your customers would ask, run on demand." },
+  { step: "3", title: "Review what's wrong", body: "See flagged answers and exactly where they're wrong." },
 ];
 
 const REASONS = [
-  "Know what ChatGPT and Google are telling buyers before a buyer tells you.",
+  "Know what Claude is telling buyers before a buyer tells you.",
   "Catch a wrong price or dead feature before it costs a deal.",
   "See how your brand's presence compares to named competitors.",
 ];
@@ -39,8 +39,8 @@ const REASONS = [
 export default function BrandMarketingSolutionPage() {
   return (
     <SolutionPageTemplate
-      headline="What AI engines say about your brand — and where they're wrong"
-      subhead="Track mentions across ChatGPT, Perplexity, Google AI Overviews, and Gemini, and catch it when they get a fact wrong."
+      headline="What AI says about your brand — and where it's wrong"
+      subhead="Track mentions from Claude, and catch it when it gets a fact wrong."
       problem="Buyers ask AI engines about a brand before they visit its site, and those answers can be outdated or simply wrong — a discontinued feature, an old price, a competitor's claim repeated as fact. Marketing teams have no visibility into what's being said, and no way to correct it once they find out."
       toolMappings={TOOL_MAPPINGS}
       workflow={WORKFLOW}
