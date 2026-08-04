@@ -14,6 +14,7 @@ import {
   downloadSiteAuditExport,
   getSiteAudit,
   getSiteAuditItems,
+  listSiteAudits,
   startSiteAudit,
   type SiteAuditItem,
   type SiteAuditJob,
@@ -37,9 +38,14 @@ export default function QualityPage() {
   const [urlsText, setUrlsText] = useState("");
   const [dimensionKey, setDimensionKey] = useState("");
   const [policyId, setPolicyId] = useState("");
+  // Set when clicking into a past job from "Recent audits"; a fresh start
+  // (startMutation.data?.id) takes precedence once it exists, so kicking off
+  // a new audit while viewing an old one still shows the new one's progress.
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
   const dimensionsQuery = useQuery({ queryKey: ["dimensions"], queryFn: listDimensions, enabled: doorway === "content" });
   const policiesQuery = useQuery({ queryKey: ["compliance", "policies"], queryFn: listPolicies, enabled: doorway === "compliance" });
+  const recentAuditsQuery = useQuery({ queryKey: ["quality", "jobs"], queryFn: listSiteAudits });
 
   const startMutation = useMutation<SiteAuditJob, ApiError, void>({
     mutationFn: () => {
@@ -55,9 +61,13 @@ export default function QualityPage() {
       });
     },
     onMutate: () => track("quality_audit_started", { doorway, inputMode }),
+    onSuccess: () => {
+      setSelectedJobId(null);
+      recentAuditsQuery.refetch();
+    },
   });
 
-  const jobId = startMutation.data?.id;
+  const jobId = startMutation.data?.id ?? selectedJobId ?? undefined;
   const jobQuery = useQuery({
     queryKey: ["quality", "jobs", jobId],
     queryFn: () => getSiteAudit(jobId!),
@@ -222,12 +232,53 @@ export default function QualityPage() {
           </CardContent>
         </Card>
       ) : (
-        <AuditProgress
-          job={jobQuery.data}
-          items={itemsQuery.data}
-          isLoadingItems={itemsQuery.isPending && isDone}
-        />
+        <div className="flex flex-col gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="self-start"
+            onClick={() => {
+              startMutation.reset();
+              setSelectedJobId(null);
+            }}
+          >
+            ← New audit
+          </Button>
+          <AuditProgress
+            job={jobQuery.data}
+            items={itemsQuery.data}
+            isLoadingItems={itemsQuery.isPending && isDone}
+          />
+        </div>
       )}
+
+      {!jobId && recentAuditsQuery.data && recentAuditsQuery.data.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent audits</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2">
+            {recentAuditsQuery.data.map((job) => (
+              <button
+                key={job.id}
+                type="button"
+                onClick={() => setSelectedJobId(job.id)}
+                className="flex items-center justify-between rounded-lg border border-border px-4 py-2.5 text-left text-sm hover:bg-muted/30"
+              >
+                <span className="truncate">
+                  {job.domain} · {job.mode === "COMPLIANCE_POLICY" ? "Compliance" : "Score"}
+                </span>
+                <span className="flex items-center gap-3 text-muted-foreground">
+                  {job.aggregateScore !== null ? `Score ${job.aggregateScore}` : null}
+                  <Badge variant={job.status === "FAILED" ? "destructive" : job.status === "COMPLETED" ? "default" : "secondary"}>
+                    {job.status}
+                  </Badge>
+                </span>
+              </button>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }
