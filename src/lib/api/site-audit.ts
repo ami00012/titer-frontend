@@ -4,6 +4,13 @@ export type SiteAuditStatus = "PENDING" | "RUNNING" | "COMPLETED" | "FAILED";
 export type SiteAuditMode = "SCORE_DIMENSIONS" | "COMPLIANCE_POLICY";
 export type SiteAuditItemStatus = "PENDING" | "SUCCESS" | "FAILED";
 
+export interface BotAccessFinding {
+  ruleId: string;
+  severity: string;
+  explanation: string;
+  suggestion: string | null;
+}
+
 export interface SiteAuditJob {
   id: string;
   domain: string;
@@ -16,6 +23,7 @@ export interface SiteAuditJob {
   aggregateScore: number | null;
   createdAt: string;
   completedAt: string | null;
+  botAccessFindings: BotAccessFinding[];
 }
 
 export interface SiteAuditItem {
@@ -27,6 +35,8 @@ export interface SiteAuditItem {
   outcome: string | null;
   violationCount: number | null;
   error: string | null;
+  /** Set when the score is real but only visible after Titer rendered the page with JS -- plain-fetch crawlers see none of it. */
+  renderNote: string | null;
 }
 
 export interface StartSiteAuditInput {

@@ -339,6 +339,23 @@ function AuditProgress({
         </CardContent>
       </Card>
 
+      {job.status === "COMPLETED" && job.botAccessFindings.length > 0 ? (
+        <Card className="border-amber-500/40">
+          <CardHeader>
+            <CardTitle className="text-base">AI crawler access</CardTitle>
+            <CardDescription>Whether known AI bots can actually reach this domain at all.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            {job.botAccessFindings.map((finding, i) => (
+              <div key={i} className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm">
+                <p>{finding.explanation}</p>
+                {finding.suggestion ? <p className="mt-1 text-xs text-muted-foreground">{finding.suggestion}</p> : null}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+
       {job.status === "COMPLETED" || job.status === "FAILED" ? (
         isLoadingItems ? (
           <p className="text-sm text-muted-foreground">Loading results…</p>
@@ -351,6 +368,7 @@ function AuditProgress({
                   <th className="px-4 py-2 font-medium">{isCompliance ? "Outcome" : "Score"}</th>
                   {isCompliance ? <th className="px-4 py-2 font-medium">Violations</th> : null}
                   <th className="px-4 py-2 font-medium">Error</th>
+                  {!isCompliance ? <th className="px-4 py-2 font-medium">Note</th> : null}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -376,6 +394,9 @@ function AuditProgress({
                     </td>
                     {isCompliance ? <td className="px-4 py-2 text-muted-foreground">{item.violationCount ?? "—"}</td> : null}
                     <td className="px-4 py-2 text-destructive">{item.error ?? "—"}</td>
+                    {!isCompliance ? (
+                      <td className="max-w-sm px-4 py-2 text-amber-600 dark:text-amber-400">{item.renderNote ?? "—"}</td>
+                    ) : null}
                   </tr>
                 ))}
               </tbody>
