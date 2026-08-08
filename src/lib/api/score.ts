@@ -116,3 +116,23 @@ export function scoreVideo(file: File, x?: string, targetAudience?: string, emot
     body: form,
   });
 }
+
+export interface GenerateFixResult {
+  suggestion: string;
+  /** true when the plan's fix-suggestions tier is a preview, not the full rewrite -- see FixGenerationService on the backend. */
+  preview: boolean;
+}
+
+/** Findings never carry the original scanned text server-side (see MeasureService -- Score never persists it), so this sends the finding's own fields rather than a scanId to look up. */
+export function generateFix(finding: Pick<Finding, "ruleId" | "severity" | "explanation">, quotedText: string | null, dimensionKey?: string) {
+  return apiFetch<GenerateFixResult>("/v1/fixes", {
+    method: "POST",
+    body: JSON.stringify({
+      ruleId: finding.ruleId,
+      severity: finding.severity,
+      explanation: finding.explanation,
+      quotedText,
+      dimensionKey,
+    }),
+  });
+}

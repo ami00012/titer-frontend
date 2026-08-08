@@ -263,6 +263,7 @@ export default function MeasurePage() {
                 response={mutation.data}
                 selectedParagraph={selectedParagraph}
                 onSelectParagraph={handleSelectParagraph}
+                sourceText={mode === "text" ? text : undefined}
               />
             ) : (
               <Badge variant="secondary">Awaiting input</Badge>
@@ -312,10 +313,12 @@ function ResultView({
   response,
   selectedParagraph,
   onSelectParagraph,
+  sourceText,
 }: {
   response: ScoreResponse;
   selectedParagraph: ParagraphScore | null;
   onSelectParagraph: (paragraph: ParagraphScore) => void;
+  sourceText?: string;
 }) {
   const primaryFindings = filterBySelectedParagraph(response.findings, selectedParagraph);
   const xFindings = response.x ? filterBySelectedParagraph(response.x.findings, selectedParagraph) : [];
@@ -357,19 +360,19 @@ function ResultView({
           <Badge variant={response.x.confidence === "calibrated" ? "default" : "outline"}>
             {response.x.confidence === "calibrated" ? "Calibrated ✓" : "Ad-hoc meter"}
           </Badge>
-          <FindingsList findings={xFindings} />
+          <FindingsList findings={xFindings} sourceText={sourceText} />
         </div>
       ) : (
-        <FindingsList findings={primaryFindings} />
+        <FindingsList findings={primaryFindings} sourceText={sourceText} />
       )}
 
-      {response.emotionAnalysis ? <EmotionBreakdown emotionAnalysis={response.emotionAnalysis} /> : null}
+      {response.emotionAnalysis ? <EmotionBreakdown emotionAnalysis={response.emotionAnalysis} sourceText={sourceText} /> : null}
     </div>
   );
 }
 
 /** Proportional bar list, not eight separate dials -- a general breakdown across joy/trust/fear/surprise/sadness/disgust/anger/anticipation reads better as one compact ranked list than eight competing circles. */
-function EmotionBreakdown({ emotionAnalysis }: { emotionAnalysis: EmotionAnalysis }) {
+function EmotionBreakdown({ emotionAnalysis, sourceText }: { emotionAnalysis: EmotionAnalysis; sourceText?: string }) {
   const entries = Object.entries(emotionAnalysis.components).sort(([, a], [, b]) => b - a);
   if (entries.length === 0) {
     return null;
@@ -392,7 +395,7 @@ function EmotionBreakdown({ emotionAnalysis }: { emotionAnalysis: EmotionAnalysi
           </div>
         ))}
       </div>
-      <FindingsList findings={emotionAnalysis.findings} />
+      <FindingsList findings={emotionAnalysis.findings} sourceText={sourceText} dimensionKey={emotionAnalysis.dimension} />
     </div>
   );
 }

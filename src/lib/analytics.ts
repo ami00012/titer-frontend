@@ -4,6 +4,7 @@ type AnalyticsEvent =
   | "scan_started"
   | "scan_completed"
   | "fix_clicked"
+  | "fix_generate_clicked"
   | "compliance_policy_created"
   | "compliance_check_started"
   | "compliance_check_completed"
