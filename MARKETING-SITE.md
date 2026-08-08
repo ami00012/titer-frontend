@@ -205,14 +205,25 @@ lenient 3:1 non-text-contrast rule), with the actual label staying in
 ring, never colored text) — the fix made the rest of the site consistent with a
 pattern that already existed, rather than inventing a new one.
 
-**Status: fix is applied and rebuilt, but re-verification via Lighthouse was
-interrupted mid-run** (system was under heavy CPU contention from concurrent dev
-server + prod server + backend + Chrome). The original Lighthouse run (before the
-fix) scored **home: SEO 100, Accessibility 95** — the 95 *was* this exact
-contrast issue. Re-running against the rebuilt production bundle to confirm 100,
-and then running the same check against a tool page and `/pricing` per the
-original gate ("Lighthouse SEO & a11y ≥95 on home, a tool page, and pricing"), is
-the next concrete step, not yet done.
+**Status: confirmed fixed.** Re-ran Lighthouse against a clean production
+build (`npm run build && PORT=3001 npm run start`, no concurrent processes
+this time) on all three pages the original gate names ("Lighthouse SEO & a11y
+≥95 on home, a tool page, and pricing"):
+
+| Page | Accessibility | SEO |
+|---|---|---|
+| `/` (home) | 100 | 100 |
+| `/product/score` (tool page) | 100 | 100 |
+| `/pricing` | 100 | 100 |
+
+Zero failed accessibility audits on any of the three (checked every
+`auditRefs` entry in the accessibility category, not just the top-line
+score). The original pre-fix run scored home Accessibility 95 -- confirmed
+that gap is fully closed, not just improved. `/product/quality`, the third
+tool page this table's own header implies, isn't actually built yet (only
+`/product/score` and `/product/visibility` exist under `src/app/product/`)
+-- ran against `/product/score` instead as "a tool page," matching the
+gate's intent since a specific tool page was never named.
 
 **Also not yet done**: no permanent Lighthouse CI config/npm script exists yet
 (no `.github/` workflows, no CI provider configured anywhere in either repo — this
