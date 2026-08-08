@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
@@ -31,11 +31,26 @@ const OUTCOME_BADGE: Record<string, "outline" | "secondary" | "destructive" | "d
   approved: "default",
 };
 
+/** Simple CSV: a "url" header column, or (no recognizable header) one URL per line -- same forgiving shape as the compliance batch page's parser, not a general CSV parser. */
+function parseCsvUrls(raw: string): string[] {
+  const lines = raw.split(/\r?\n/).filter((line) => line.trim().length > 0);
+  if (lines.length === 0) return [];
+  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const urlIndex = header.indexOf("url");
+  if (urlIndex === -1) {
+    return lines.map((line) => line.trim());
+  }
+  return lines.slice(1).map((line) => (line.split(",")[urlIndex] ?? "").trim()).filter(Boolean);
+}
+
 export default function QualityPage() {
   const [doorway, setDoorway] = useState<Doorway>("seo");
-  const [inputMode, setInputMode] = useState<"domain" | "urls">("domain");
+  const [inputMode, setInputMode] = useState<"domain" | "urls" | "csv">("domain");
   const [domain, setDomain] = useState("");
   const [urlsText, setUrlsText] = useState("");
+  const [csvUrls, setCsvUrls] = useState<string[] | null>(null);
+  const [csvFileName, setCsvFileName] = useState<string | null>(null);
+  const csvFileInputRef = useRef<HTMLInputElement>(null);
   const [dimensionKey, setDimensionKey] = useState("");
   const [policyId, setPolicyId] = useState("");
   // Set when clicking into a past job from "Recent audits"; a fresh start
@@ -49,13 +64,14 @@ export default function QualityPage() {
 
   const startMutation = useMutation<SiteAuditJob, ApiError, void>({
     mutationFn: () => {
-      const urls = urlsText
+      const pastedUrls = urlsText
         .split(/\r?\n/)
         .map((u) => u.trim())
         .filter(Boolean);
+      const urls = inputMode === "csv" ? (csvUrls ?? []) : pastedUrls;
       return startSiteAudit({
         domain: inputMode === "domain" ? domain : undefined,
-        urls: inputMode === "urls" ? urls : undefined,
+        urls: inputMode !== "domain" ? urls : undefined,
         policyId: doorway === "compliance" ? policyId : undefined,
         dimensionKeys: doorway === "content" && dimensionKey ? [dimensionKey] : undefined,
       });
@@ -93,9 +109,21 @@ export default function QualityPage() {
     enabled: !!jobId && isDone,
   });
 
-  const hasInput = inputMode === "domain" ? domain.trim().length > 0 : urlsText.trim().length > 0;
+  const hasInput =
+    inputMode === "domain" ? domain.trim().length > 0
+    : inputMode === "csv" ? !!csvUrls && csvUrls.length > 0
+    : urlsText.trim().length > 0;
   const hasTarget = doorway !== "compliance" || !!policyId;
   const canSubmit = hasInput && hasTarget && !startMutation.isPending;
+
+  function handleCsvFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCsvUrls(parseCsvUrls(String(reader.result ?? "")));
+      setCsvFileName(file.name);
+    };
+    reader.readAsText(file);
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -198,6 +226,9 @@ export default function QualityPage() {
                 <DoorwayButton active={inputMode === "urls"} onClick={() => setInputMode("urls")}>
                   Paste URLs
                 </DoorwayButton>
+                <DoorwayButton active={inputMode === "csv"} onClick={() => setInputMode("csv")}>
+                  Upload CSV
+                </DoorwayButton>
               </div>
             </div>
 
@@ -206,7 +237,7 @@ export default function QualityPage() {
                 <Label htmlFor="domain">Domain</Label>
                 <Input id="domain" value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="https://example.com" />
               </div>
-            ) : (
+            ) : inputMode === "urls" ? (
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="urls">URLs (one per line)</Label>
                 <textarea
@@ -217,6 +248,31 @@ export default function QualityPage() {
                   placeholder={"https://example.com/page-1\nhttps://example.com/page-2"}
                   className="w-full rounded-lg border border-input bg-transparent p-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
                 />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                <Label>CSV file</Label>
+                <p className="text-xs text-muted-foreground">A &quot;url&quot; header column, or one URL per line with no header.</p>
+                <div className="flex items-center gap-3">
+                  <input
+                    ref={csvFileInputRef}
+                    type="file"
+                    accept=".csv,text/csv"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleCsvFile(file);
+                    }}
+                  />
+                  <Button variant="outline" size="sm" onClick={() => csvFileInputRef.current?.click()}>
+                    Choose file
+                  </Button>
+                  {csvFileName ? (
+                    <span className="text-sm text-muted-foreground">
+                      {csvFileName} ({csvUrls?.length ?? 0} URLs)
+                    </span>
+                  ) : null}
+                </div>
               </div>
             )}
 
