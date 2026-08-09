@@ -58,7 +58,7 @@ export default function PricingPage() {
 
       <section className="flex w-full flex-col items-center gap-4 border-t border-[color:var(--titer-border)] py-24 text-center">
         <h2 className="text-xl font-semibold text-[color:var(--titer-ink)]">
-          Need compliance, SSO, or custom terms?
+          Need compliance?
         </h2>
         <RequestDialog
           mode="demo"
