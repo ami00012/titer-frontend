@@ -11,7 +11,8 @@ type CtaKind = "free" | "trial" | "demo";
 interface Tier {
   name: string;
   monthly: number;
-  annual: number;
+  /** Pro only -- a discounted first-50-customers rate, shown alongside the normal price rather than replacing it. */
+  foundingMonthly?: number;
   mostPopular?: boolean;
   cta: CtaKind;
   features: string[];
@@ -20,42 +21,41 @@ interface Tier {
 // Every number here is read from titer-backend's PlanCatalog.java (the real
 // source of truth) as of the margin-safe-quotas changeset -- not invented
 // copy. See PRICING-PROFITABILITY-PLAN.md for how these were derived.
+// "Audit up to N pages" figures are batchUrlsPerJob (the real, enforced cap
+// on a single audit run) -- not a monthly aggregate, which nothing in the
+// codebase actually tracks or enforces.
 const TIERS: Tier[] = [
   {
     name: "Free",
     monthly: 0,
-    annual: 0,
     cta: "free",
     features: ["Titer Score", "15 scans a month"],
   },
   {
     name: "Pro",
     monthly: 12,
-    annual: 115,
+    foundingMonthly: 9,
     cta: "trial",
     features: ["100 scans a day", "150 fixes a month", "Custom X dimensions"],
   },
   {
     name: "Studio",
     monthly: 99,
-    annual: 950,
     mostPopular: true,
     cta: "trial",
-    features: ["Everything in Pro", "Audit up to 250 pages a month", "Visibility: 1 brand, 10 daily priority queries"],
+    features: ["Everything in Pro", "Audit up to 100 pages per run", "Visibility: 1 brand"],
   },
   {
     name: "Agency",
     monthly: 349,
-    annual: 3_350,
     cta: "demo",
-    features: ["Everything in Studio", "Audit up to 1,000 pages a month", "Visibility: 5 brands, white-label reports"],
+    features: ["Everything in Studio", "Audit up to 500 pages per run", "Visibility: 5 brands, white-label reports"],
   },
   {
     name: "Business",
     monthly: 499,
-    annual: 4_790,
     cta: "demo",
-    features: ["Everything in Agency", "60,000 API calls a month", "SSO, metered overage available"],
+    features: ["Everything in Agency", "60,000 API calls a month", "Metered overage available"],
   },
 ];
 
@@ -63,12 +63,11 @@ const COMPARISON_ROWS: { feature: string; values: string[] }[] = [
   { feature: "Titer Score scans", values: ["15/mo", "100/day", "200/day", "1,200/day", "2,000/day"] },
   { feature: "Fixes", values: ["3/mo", "150/mo", "800/mo", "1,200/mo", "1,200/mo"] },
   { feature: "Custom X dimensions", values: ["—", "✓", "✓", "✓", "✓"] },
-  { feature: "Site audits (pages/mo)", values: ["—", "5/mo", "250/mo", "1,000/mo", "250/mo"] },
-  { feature: "Client-ready reports", values: ["—", "—", "✓", "✓", "✓"] },
+  { feature: "Pages per audit", values: ["—", "10", "100", "500", "100"] },
+  { feature: "Client-ready reports", values: ["—", "✓", "✓", "✓", "✓"] },
   { feature: "Titer Visibility", values: ["—", "—", "1 brand", "5 brands", "2 brands"] },
   { feature: "Client workspaces", values: ["—", "—", "—", "10", "3"] },
   { feature: "API access", values: ["—", "—", "5,000/mo", "10,000/mo", "60,000/mo"] },
-  { feature: "SSO / compliance", values: ["—", "—", "—", "—", "✓"] },
 ];
 
 function TierCta({ cta }: { cta: CtaKind }) {
@@ -100,35 +99,10 @@ function TierCta({ cta }: { cta: CtaKind }) {
 }
 
 export function PricingTable() {
-  const [annual, setAnnual] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
 
   return (
     <div className="flex flex-col gap-12">
-      <div className="flex flex-col items-center gap-4">
-        <div className="inline-flex items-center gap-1 rounded-full border border-[color:var(--titer-border)] p-1">
-          <button
-            type="button"
-            onClick={() => setAnnual(false)}
-            aria-pressed={!annual}
-            className="rounded-full px-4 py-1.5 text-sm text-[color:var(--titer-ink)] aria-pressed:bg-[color:var(--titer-ink)] aria-pressed:text-white"
-          >
-            Monthly
-          </button>
-          <button
-            type="button"
-            onClick={() => setAnnual(true)}
-            aria-pressed={annual}
-            className="rounded-full px-4 py-1.5 text-sm text-[color:var(--titer-ink)] aria-pressed:bg-[color:var(--titer-ink)] aria-pressed:text-white"
-          >
-            Annual
-          </button>
-        </div>
-        <span className="rounded-full border border-[color:var(--titer-border)] px-3 py-1 text-sm text-[color:var(--titer-muted)]">
-          Founding rate: $79/yr for the first 50 customers
-        </span>
-      </div>
-
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
         {TIERS.map((tier) => (
           <Card
@@ -150,12 +124,16 @@ export function PricingTable() {
 
             <div>
               <span className="text-2xl font-semibold text-[color:var(--titer-ink)]">
-                {tier.monthly === 0 ? "Free" : `$${annual ? tier.annual : tier.monthly}`}
+                {tier.monthly === 0 ? "Free" : `$${tier.monthly}`}
               </span>
               {tier.monthly > 0 ? (
-                <span className="text-sm text-[color:var(--titer-muted)]">
-                  {annual ? "/yr" : "/mo"}
-                </span>
+                <span className="text-sm text-[color:var(--titer-muted)]">/mo</span>
+              ) : null}
+              {tier.foundingMonthly ? (
+                <p className="mt-1 text-xs text-[color:var(--titer-muted)]">
+                  <span className="font-medium text-[color:var(--titer-ink)]">${tier.foundingMonthly}/mo</span> founding
+                  rate for the first 50 customers
+                </p>
               ) : null}
             </div>
 
@@ -263,7 +241,7 @@ export function PricingTable() {
               <li>5,000 checks a month</li>
               <li>All 3 policy packs, 50 custom rules</li>
               <li>Audit export, 36-month retention</li>
-              <li>API access, webhooks, SSO add-on</li>
+              <li>API access, webhooks</li>
             </ul>
             <div className="mt-auto pt-2">
               <RequestDialog
@@ -276,6 +254,29 @@ export function PricingTable() {
               />
             </div>
           </Card>
+        </div>
+      </div>
+
+      {/* Not a fixed tier -- for buyers whose real ask is a negotiated
+          commitment (volume, contract length, terms) rather than a plan pick.
+          Routes to a real, distinct lead type (custom_plan_call) so these
+          show up separately from generic demo requests. */}
+      <div className="flex flex-col gap-4">
+        <div className="text-center">
+          <span className="text-sm font-medium text-[color:var(--titer-muted)]">Something more custom?</span>
+          <p className="mt-1 text-[color:var(--titer-ink)]">
+            Long-term commitments, higher volume, or terms outside our standard tiers — let&apos;s talk.
+          </p>
+        </div>
+        <div className="mx-auto">
+          <RequestDialog
+            mode="call"
+            trigger={
+              <Button variant="outline" className="rounded-full">
+                Schedule a call
+              </Button>
+            }
+          />
         </div>
       </div>
     </div>

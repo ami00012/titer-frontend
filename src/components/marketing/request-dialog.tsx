@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 import { submitLead } from "@/lib/api/leads";
 
-type Mode = "trial" | "demo";
+type Mode = "trial" | "demo" | "call";
 
 const COPY: Record<
   Mode,
@@ -49,6 +49,23 @@ const COPY: Record<
     messageLabel: "Anything we should know?",
     messagePlaceholder: "e.g. we run 500 pages a month across clients",
     submitLabel: "Book a demo",
+    submittingLabel: "Sending…",
+    successTitle: "Request received",
+    successBody: (calendarUrl) => (
+      <>
+        Grab a time that works:{" "}
+        <a href={calendarUrl} className="text-[color:var(--titer-ink)] underline underline-offset-2">
+          {calendarUrl}
+        </a>
+      </>
+    ),
+  },
+  call: {
+    title: "Talk to us about a custom plan",
+    description: "For volume, timelines, or terms beyond our standard tiers — tell us what you need and we'll build a plan around it.",
+    messageLabel: "What are you looking for?",
+    messagePlaceholder: "e.g. a 2-year commitment across 40 client workspaces",
+    submitLabel: "Schedule a call",
     submittingLabel: "Sending…",
     successTitle: "Request received",
     successBody: (calendarUrl) => (
@@ -96,7 +113,7 @@ export function RequestDialog({ mode, trigger }: RequestDialogProps) {
     setStatus("submitting");
     try {
       await submitLead({
-        type: mode === "trial" ? "trial_request" : "demo_request",
+        type: mode === "trial" ? "trial_request" : mode === "demo" ? "demo_request" : "custom_plan_call",
         name,
         workEmail,
         company,
@@ -104,7 +121,7 @@ export function RequestDialog({ mode, trigger }: RequestDialogProps) {
         message: message || undefined,
       });
       setStatus("success");
-      track(mode === "trial" ? "trial_requested" : "demo_requested", { role, company });
+      track(mode === "trial" ? "trial_requested" : mode === "demo" ? "demo_requested" : "custom_plan_call_requested", { role, company });
     } catch {
       setStatus("error");
     }

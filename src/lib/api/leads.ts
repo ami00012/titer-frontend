@@ -1,6 +1,6 @@
 import { apiFetch } from "@/lib/api/client";
 
-export type LeadType = "trial_request" | "demo_request" | "waitlist_signup";
+export type LeadType = "trial_request" | "demo_request" | "waitlist_signup" | "custom_plan_call";
 
 export interface LeadPayload {
   type: LeadType;

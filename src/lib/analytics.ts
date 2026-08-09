@@ -1,6 +1,7 @@
 type AnalyticsEvent =
   | "trial_requested"
   | "demo_requested"
+  | "custom_plan_call_requested"
   | "scan_started"
   | "scan_completed"
   | "fix_clicked"
