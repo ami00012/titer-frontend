@@ -234,23 +234,55 @@ was confirmed, not assumed, so a CI workflow file wasn't added speculatively).
 
 ## Known gaps — real values needed, not fabricated
 
-Every one of these is marked `{{PLACEHOLDER: ...}}` in the actual page content, not
-silently invented:
+This section previously listed six `{{PLACEHOLDER: ...}}` items as still open.
+Checked against current code, not just this doc: three were already filled
+with real, `PlanCatalog.java`-derived numbers (confirmed accurate) somewhere
+between the original build and now, without this doc ever being updated —
+same staleness pattern found and fixed in `PRICING-PROFITABILITY-PLAN.md`
+around the same time. The other two turned out to be a live risk, not a
+cosmetic gap: two billing-behavior claims (proration, refunds) were reviewed
+with the founder and found to describe behavior that was never actually
+built or approved, sitting live on the pricing page as if decided. Resolved:
 
-- **Pricing** (`pricing-table.tsx`, `pricing/page.tsx`): Free tier's daily scan
-  limit; Studio/Agency/Business "pages audited/mo" (card copy + comparison table,
-  3 spots); SSO/compliance comparison-table cell; founding-rate customer cap
-  ("first N customers"); billing FAQ's fair-use and refund policy text.
-- **`/product/quality`**: FAQ answer for "how many pages can I audit at once?"
+- **Free tier's daily scan limit** — already fixed (a prior session's own
+  `af8827a` commit corrected this from a stale anonymous-tier "3/day" to
+  Free's real "15/mo"; the doc's "daily" framing was itself wrong).
+- **Studio/Agency/Business "pages audited/mo"** (card copy + comparison
+  table, 3 spots) — already filled from `qualityScansMonthly`, verified
+  correct against `PlanCatalog.java`.
+- **SSO/compliance comparison-table cell** — already filled (✓ only on
+  Business, matching `ssoSaml`).
+- **Billing FAQ's fair-use text** — already filled, verified correct
+  against `fairUseDaily` per plan.
+- **Founding-rate customer cap** — reviewed with the founder: "$79/yr for
+  the first 50 customers" is confirmed real and intentional, kept as-is.
+- **Billing FAQ's refund policy** — reviewed with the founder: no real
+  refund policy has been decided yet. The claimed answer ("full refund
+  within 7 days... pro-rata in the first 30 days") was live on the pricing
+  page describing a specific commercial commitment nobody had actually
+  approved. **Removed the FAQ entry** rather than leave an unconfirmed
+  promise live to real customers.
+- **Proration FAQ, found during this same review, not originally listed
+  here**: "Upgrading mid-cycle charges the difference... downgrading
+  applies at the next renewal" had no backing code at all —
+  `PayPalBillingService` only revises seat *quantity*, never plan-tier
+  proration. Reviewed with the founder and **removed**, same reasoning as
+  the refund entry: don't promise billing behavior that isn't built.
 
-Filled in this session (previously placeholders, now real): the Calendly URL,
-the `/how-it-works` calibration numbers (previously withheld as premature,
-now published directly — see the page-inventory table above), and
-two home-page items that were removed rather than filled — the "share of AI-assisted
-content" stat (replaced with a non-numeric, defensible claim: "Everyone sounds the
-same") and the social-proof logo strip + customer quote (deleted outright — founder
-explicitly said no fabricated social proof, and there was nothing real to put there
-yet).
+**Still genuinely open**, and larger than a copy fix: `/product/quality`
+doesn't exist as a page at all (only `/product/score` and
+`/product/visibility` are built under `src/app/product/`), so its FAQ
+answer ("how many pages can I audit at once?") has nowhere to go until that
+page itself is built.
+
+Filled in an earlier session (previously placeholders, now real): the
+Calendly URL, the `/how-it-works` calibration numbers (previously withheld
+as premature, now published directly — see the page-inventory table above),
+and two home-page items that were removed rather than filled — the "share
+of AI-assisted content" stat (replaced with a non-numeric, defensible
+claim: "Everyone sounds the same") and the social-proof logo strip +
+customer quote (deleted outright — founder explicitly said no fabricated
+social proof, and there was nothing real to put there yet).
 
 ---
 

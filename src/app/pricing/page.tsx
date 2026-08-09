@@ -17,16 +17,8 @@ const BILLING_FAQ = [
     a: "Your data stays. Downgrading doesn't delete scans, reports, or workspace history — it just changes what you can do going forward.",
   },
   {
-    q: "Do you prorate mid-cycle changes?",
-    a: "Yes. Upgrading mid-cycle charges the difference for the rest of the period; downgrading applies at the next renewal.",
-  },
-  {
     q: "What counts as fair use?",
     a: "Unlimited means no monthly cap. To keep the service fast for everyone, plans have a daily fair-use ceiling (Pro 100, Studio 200, Agency 1,200, Business 2,000 scans). Hitting it pauses scans until tomorrow — it never charges you.",
-  },
-  {
-    q: "Can I get a refund?",
-    a: "First payment: full refund within 7 days, no questions. Annual plans: unused full months refunded pro-rata in the first 30 days.",
   },
 ];
 
