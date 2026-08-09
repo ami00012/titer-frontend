@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { ApiError, apiErrorMessage } from "@/lib/api/client";
 import { listDimensions, listPolicies, OUTCOME_LABEL } from "@/lib/api/compliance";
 import {
   downloadSiteAuditExport,
+  downloadSiteAuditPdf,
   getSiteAudit,
   getSiteAuditItems,
   listSiteAudits,
@@ -20,6 +22,14 @@ import {
   type SiteAuditJob,
 } from "@/lib/api/site-audit";
 import { track } from "@/lib/analytics";
+
+async function handleDownloadPdf(jobId: string) {
+  try {
+    await downloadSiteAuditPdf(jobId);
+  } catch (error) {
+    toast.error(apiErrorMessage(error, "PDF reports aren't available on your plan."));
+  }
+}
 
 type Doorway = "seo" | "content" | "compliance";
 
@@ -386,9 +396,12 @@ function AuditProgress({
             <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
           </div>
           {job.status === "COMPLETED" ? (
-            <div>
+            <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => downloadSiteAuditExport(job.id)}>
                 Export CSV
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => handleDownloadPdf(job.id)}>
+                Download PDF report
               </Button>
             </div>
           ) : null}

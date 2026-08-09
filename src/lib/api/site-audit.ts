@@ -77,3 +77,16 @@ export async function downloadSiteAuditExport(id: string) {
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+/** "Client-ready reports" / "white-label reports" -- applies the workspace's saved branding (Settings > Branding); 402s below shareCard=CLEAN. */
+export async function downloadSiteAuditPdf(id: string) {
+  const blob = await apiFetchBlob(`/v1/site-audits/${id}/export/pdf`);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `titer-quality-report-${id}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
