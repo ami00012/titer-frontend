@@ -18,7 +18,3 @@ export function openBillingPortal() {
     body: JSON.stringify({ returnUrl: `${window.location.origin}${window.location.pathname}` }),
   });
 }
-
-export function addSeat() {
-  return apiFetch<void>("/v1/billing/seats", { method: "POST" });
-}

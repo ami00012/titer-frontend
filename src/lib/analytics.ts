@@ -10,6 +10,7 @@ type AnalyticsEvent =
   | "compliance_check_started"
   | "compliance_check_completed"
   | "compliance_review_submitted"
+  | "compliance_issue_reported"
   | "compliance_export_requested"
   | "compliance_batch_check_started"
   | "compliance_batch_check_completed"

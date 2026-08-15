@@ -10,7 +10,6 @@ export interface Entitlements {
   stripePriceId: string | null;
   priceMonthlyUsd: number;
   seatsIncluded: number;
-  extraSeatPriceId: string | null;
   clientWorkspaces: number;
   extraClientWorkspacePriceId: string | null;
   scoreScansMonthly: number | null;

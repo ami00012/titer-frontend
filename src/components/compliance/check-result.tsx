@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { TiterDial } from "@/components/titer/titer-dial";
 import { apiErrorMessage } from "@/lib/api/client";
-import { reviewCheck, OUTCOME_LABEL, type ComplianceCheck, type RuleResult, type ReviewDecision } from "@/lib/api/compliance";
+import { reportIssue, reviewCheck, OUTCOME_LABEL, type ComplianceCheck, type RuleResult, type ReviewDecision } from "@/lib/api/compliance";
 import { track } from "@/lib/analytics";
 
 const OUTCOME_TONE: Record<string, string> = {
@@ -35,6 +35,8 @@ export function CheckResult({ check: initialCheck }: { check: ComplianceCheck })
         </div>
         <p className="mt-1 text-sm text-secondary-foreground">{check.disclaimer}</p>
       </div>
+
+      <ReportIssue checkId={check.id} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {check.ruleResults.map((rule) => (
@@ -76,6 +78,61 @@ function RuleCard({ rule, check }: { rule: RuleResult; check: ComplianceCheck })
               </li>
             ))}
           </ul>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ReportIssue({ checkId }: { checkId: string }) {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: () => reportIssue(checkId, message),
+    onSuccess: () => {
+      track("compliance_issue_reported", { checkId });
+      setMessage("");
+      setOpen(false);
+    },
+  });
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="self-start text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+      >
+        See something wrong with a rule or citation? Report it
+      </button>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm">Report an issue</CardTitle>
+        <CardDescription>Sent to support@titer.dev along with this check&apos;s context.</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        <textarea
+          value={message}
+          onChange={(event) => setMessage(event.target.value)}
+          rows={3}
+          placeholder="What looks wrong? A specific rule, citation, or score is most useful."
+          className="w-full resize-none rounded-md border border-input bg-input/30 px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+        />
+        <div className="flex gap-2">
+          <Button size="sm" onClick={() => mutation.mutate()} disabled={mutation.isPending || message.trim().length === 0}>
+            {mutation.isPending ? "Sending…" : "Send report"}
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+        </div>
+        {mutation.isError ? (
+          <p className="text-sm text-destructive">{apiErrorMessage(mutation.error, "Couldn't send the report.")}</p>
         ) : null}
       </CardContent>
     </Card>

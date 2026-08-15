@@ -214,6 +214,14 @@ export function reviewCheck(id: string, decision: ReviewDecision, reason: string
   });
 }
 
+/** Reachable from the disclaimer on every check result -- emails support@titer.dev with the check's context. */
+export function reportIssue(checkId: string, message: string, ruleKey?: string) {
+  return apiFetch<void>(`/v1/compliance/checks/${checkId}/report-issue`, {
+    method: "POST",
+    body: JSON.stringify({ message, ruleKey }),
+  });
+}
+
 export function createExport(rangeStart: string, rangeEnd: string, format: ExportFormat, policyId?: string) {
   return apiFetch<AuditExport>("/v1/compliance/exports", {
     method: "POST",
