@@ -27,7 +27,7 @@ const TOOLS = [
     direction: "higher-is-better" as const,
     demoScore: 92,
     // /measure is login-gated like every other scoring path (see
-    // PROTECTED_PREFIXES in src/lib/supabase/proxy.ts) -- an unauthenticated
+    // PROTECTED_PREFIXES in src/lib/supabase/middleware.ts) -- an unauthenticated
     // click lands on /login first, same as Quality's card below.
     href: "/measure",
     cta: "try" as const,
