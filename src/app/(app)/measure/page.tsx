@@ -157,7 +157,8 @@ export default function MeasurePage() {
                 : "Transcribed locally on our server, no external API — may take a minute or two for longer clips."}
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-6 sm:flex-row sm:items-start">
+        <CardContent className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
           <div className="flex flex-1 flex-col gap-3">
             <div className="flex gap-1 rounded-md border border-border bg-muted/30 p-1 text-sm">
               {(["text", "url", "video"] as Mode[]).map((m) => (
@@ -255,25 +256,31 @@ export default function MeasurePage() {
             ) : null}
           </div>
 
-          {/* sm:sticky + its own scroll: the input form is short but a full findings list
-              (up to 3 stacked FindingsLists -- primary/x + emotion breakdown) easily runs
-              past the viewport. Without this, that pushed page height way past the form,
-              forcing a long scroll down blank space next to the (already-finished) form to
-              read the rest of the findings. */}
-          <div className="flex flex-col items-center gap-4 sm:sticky sm:top-8 sm:w-96 sm:max-h-[calc(100vh-4rem)] sm:overflow-y-auto sm:overflow-x-hidden">
+          <div className="flex flex-col items-center gap-4 sm:w-80">
             {mutation.isError && isUnmeasurableX(mutation.error) ? (
               <RefusalCard error={mutation.error} onSuggestionClick={handleSuggestionClick} />
             ) : mutation.data ? (
-              <ResultView
+              <ResultSummary
                 response={mutation.data}
                 selectedParagraph={selectedParagraph}
                 onSelectParagraph={handleSelectParagraph}
-                sourceText={mode === "text" ? text : undefined}
               />
             ) : (
               <Badge variant="secondary">Awaiting input</Badge>
             )}
           </div>
+        </div>
+
+        {/* Full-width, below the form/summary row rather than crammed into the sidebar --
+            findings render in a responsive grid (see FindingsList) so the page's own width
+            does the work a narrow column can't: shorter cards, no long one-column scroll. */}
+        {mutation.data ? (
+          <ResultFindings
+            response={mutation.data}
+            selectedParagraph={selectedParagraph}
+            sourceText={mode === "text" ? text : undefined}
+          />
+        ) : null}
         </CardContent>
       </Card>
     </div>
@@ -314,20 +321,18 @@ function VideoUploadField({ file, onChange }: { file: File | null; onChange: (fi
   );
 }
 
-function ResultView({
+/** Score dial(s) + heat strip only -- compact enough for the sidebar. Findings moved out to
+ *  ResultFindings, a full-width section below the form, since a grid of finding cards needs
+ *  real page width to be worth anything (see that component). */
+function ResultSummary({
   response,
   selectedParagraph,
   onSelectParagraph,
-  sourceText,
 }: {
   response: ScoreResponse;
   selectedParagraph: ParagraphScore | null;
   onSelectParagraph: (paragraph: ParagraphScore) => void;
-  sourceText?: string;
 }) {
-  const primaryFindings = filterBySelectedParagraph(response.findings, selectedParagraph);
-  const xFindings = response.x ? filterBySelectedParagraph(response.x.findings, selectedParagraph) : [];
-
   return (
     <div className="flex w-full flex-col items-center gap-6">
       {response.targetAudience ? (
@@ -365,19 +370,16 @@ function ResultView({
           <Badge variant={response.x.confidence === "calibrated" ? "default" : "outline"}>
             {response.x.confidence === "calibrated" ? "Calibrated ✓" : "Ad-hoc meter"}
           </Badge>
-          <FindingsList findings={xFindings} sourceText={sourceText} />
         </div>
-      ) : (
-        <FindingsList findings={primaryFindings} sourceText={sourceText} />
-      )}
+      ) : null}
 
-      {response.emotionAnalysis ? <EmotionBreakdown emotionAnalysis={response.emotionAnalysis} sourceText={sourceText} /> : null}
+      {response.emotionAnalysis ? <EmotionBars emotionAnalysis={response.emotionAnalysis} /> : null}
     </div>
   );
 }
 
 /** Proportional bar list, not eight separate dials -- a general breakdown across joy/trust/fear/surprise/sadness/disgust/anger/anticipation reads better as one compact ranked list than eight competing circles. */
-function EmotionBreakdown({ emotionAnalysis, sourceText }: { emotionAnalysis: EmotionAnalysis; sourceText?: string }) {
+function EmotionBars({ emotionAnalysis }: { emotionAnalysis: EmotionAnalysis }) {
   const entries = Object.entries(emotionAnalysis.components).sort(([, a], [, b]) => b - a);
   if (entries.length === 0) {
     return null;
@@ -400,7 +402,36 @@ function EmotionBreakdown({ emotionAnalysis, sourceText }: { emotionAnalysis: Em
           </div>
         ))}
       </div>
-      <FindingsList findings={emotionAnalysis.findings} sourceText={sourceText} dimensionKey={emotionAnalysis.dimension} />
+    </div>
+  );
+}
+
+/** Full width so FindingsList's grid actually has room to lay out multiple columns -- see
+ *  page.tsx's CardContent, this renders below the form/summary row, not inside the sidebar. */
+function ResultFindings({
+  response,
+  selectedParagraph,
+  sourceText,
+}: {
+  response: ScoreResponse;
+  selectedParagraph: ParagraphScore | null;
+  sourceText?: string;
+}) {
+  const primaryFindings = filterBySelectedParagraph(response.findings, selectedParagraph);
+  const xFindings = response.x ? filterBySelectedParagraph(response.x.findings, selectedParagraph) : [];
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <FindingsList findings={response.x ? xFindings : primaryFindings} sourceText={sourceText} />
+      {response.emotionAnalysis ? (
+        <div className="border-t border-border pt-6">
+          <FindingsList
+            findings={response.emotionAnalysis.findings}
+            sourceText={sourceText}
+            dimensionKey={response.emotionAnalysis.dimension}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

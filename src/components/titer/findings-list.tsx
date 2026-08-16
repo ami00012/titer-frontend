@@ -50,7 +50,7 @@ export function FindingsList({ findings, sourceText, dimensionKey }: { findings:
   return (
     <div className="flex flex-col gap-2">
       <h3 className="text-sm font-medium text-secondary-foreground">Findings</h3>
-      <ul className="flex flex-col gap-2">
+      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {findings.map((finding, index) => {
           const fix = generated[index];
           const suggestion = finding.suggestion ?? fix?.suggestion ?? null;
