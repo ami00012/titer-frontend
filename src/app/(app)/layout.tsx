@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "@/components/titer/logout-button";
+import { MobileNav } from "@/components/titer/mobile-nav";
 import { WorkspaceSwitcher } from "@/components/titer/workspace-switcher";
 import { UpgradeModal } from "@/components/titer/upgrade-modal";
 import { Badge } from "@/components/ui/badge";
@@ -34,20 +35,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="flex items-center justify-between border-b px-6 py-4">
-        <div className="flex items-center gap-8">
-          <Link href="/dashboard" className="text-lg font-semibold">
+      <header className="flex items-center justify-between gap-3 border-b px-4 py-4 sm:px-6">
+        <div className="flex min-w-0 items-center gap-8">
+          <MobileNav nav={NAV} />
+          <Link href="/dashboard" className="shrink-0 text-lg font-semibold">
             Titer
           </Link>
           {devBypass ? (
-            <>
+            <div className="hidden items-center gap-3 md:flex">
               <Badge variant="destructive">Dev mode — auth bypassed</Badge>
               <Link href="/" className="text-sm text-secondary-foreground hover:text-foreground hover:underline">
                 View marketing site →
               </Link>
-            </>
+            </div>
           ) : null}
-          <nav className="flex items-center gap-4 text-sm text-secondary-foreground">
+          <nav className="hidden items-center gap-4 text-sm text-secondary-foreground md:flex">
             {NAV.map((item) => (
               <Link key={item.href} href={item.href} className="hover:text-foreground">
                 {item.label}
@@ -55,9 +57,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             ))}
           </nav>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3">
           <WorkspaceSwitcher />
-          <span className="text-sm text-muted-foreground">{user.email}</span>
+          <span className="hidden text-sm text-muted-foreground sm:inline">{user.email}</span>
           <LogoutButton />
         </div>
       </header>
