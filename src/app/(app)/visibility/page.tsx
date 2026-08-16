@@ -209,7 +209,7 @@ function BrandPanel({ brand }: { brand: Brand }) {
       ) : activeQueries.length === 0 ? (
         <p className="text-sm text-muted-foreground">No questions yet — add one above, then run a check.</p>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {activeQueries.map((query) => (
             <QueryResultCard key={query.id} query={query} brandName={brand.name} />
           ))}
