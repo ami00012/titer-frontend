@@ -255,7 +255,12 @@ export default function MeasurePage() {
             ) : null}
           </div>
 
-          <div className="flex flex-col items-center gap-4 sm:w-80">
+          {/* sm:sticky + its own scroll: the input form is short but a full findings list
+              (up to 3 stacked FindingsLists -- primary/x + emotion breakdown) easily runs
+              past the viewport. Without this, that pushed page height way past the form,
+              forcing a long scroll down blank space next to the (already-finished) form to
+              read the rest of the findings. */}
+          <div className="flex flex-col items-center gap-4 sm:sticky sm:top-8 sm:w-96 sm:max-h-[calc(100vh-4rem)] sm:overflow-y-auto sm:overflow-x-hidden">
             {mutation.isError && isUnmeasurableX(mutation.error) ? (
               <RefusalCard error={mutation.error} onSuggestionClick={handleSuggestionClick} />
             ) : mutation.data ? (
