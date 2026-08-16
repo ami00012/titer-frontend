@@ -165,15 +165,7 @@ export default function Home() {
           </Button>
           <RequestDialog
             mode="demo"
-            trigger={
-              <Button variant="ghost" className="text-[color:var(--titer-muted)]">
-                Book a demo
-              </Button>
-            }
-          />
-          <RequestDialog
-            mode="trial"
-            trigger={<Button className="rounded-full">Request trial</Button>}
+            trigger={<Button className="rounded-full">Book a demo</Button>}
           />
         </nav>
       </header>
@@ -192,16 +184,8 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-3 pt-2">
             <RequestDialog
-              mode="trial"
-              trigger={<Button size="lg" className="rounded-full">Request trial</Button>}
-            />
-            <RequestDialog
               mode="demo"
-              trigger={
-                <Button size="lg" variant="outline" className="rounded-full">
-                  Book a demo
-                </Button>
-              }
+              trigger={<Button size="lg" className="rounded-full">Book a demo</Button>}
             />
           </div>
         </div>
