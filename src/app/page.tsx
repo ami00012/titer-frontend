@@ -417,7 +417,7 @@ export default function Home() {
             style={{ lineHeight: 1.5 }}
           >
             Titer measures patterns, not authorship. Every score traces to specific
-            findings — built for human review, not a verdict.
+            findings — built for human review and refinement.
           </p>
         </section>
 
