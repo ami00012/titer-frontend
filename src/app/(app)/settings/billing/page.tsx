@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEntitlements } from "@/hooks/use-entitlements";
+import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
 import { apiErrorMessage } from "@/lib/api/client";
 import { openBillingPortal } from "@/lib/api/billing";
 import { useUpgradeModalStore } from "@/lib/stores/upgrade-modal-store";
@@ -17,6 +18,7 @@ const REQUEST_SEATS_MAILTO = "mailto:support@titer.dev?subject=Requesting%20more
 export default function BillingPage() {
   const { workspacePlan, entitlements, isLoading } = useEntitlements();
   const openUpgradeModal = useUpgradeModalStore((s) => s.openModal);
+  const symbol = useCurrencySymbol();
 
   const portal = useMutation({
     mutationFn: openBillingPortal,
@@ -40,7 +42,7 @@ export default function BillingPage() {
           </CardTitle>
           <CardDescription>
             {entitlements.seatsIncluded} seat{entitlements.seatsIncluded === 1 ? "" : "s"} included
-            {entitlements.priceMonthlyUsd > 0 ? ` · $${entitlements.priceMonthlyUsd}/mo` : ""}
+            {entitlements.priceMonthlyUsd > 0 ? ` · ${symbol}${entitlements.priceMonthlyUsd}/mo` : ""}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-3">

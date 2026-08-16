@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { TiterDial, type TiterDirection } from "@/components/titer/titer-dial";
+import { LocalizedPrice } from "@/components/marketing/localized-price";
 
 interface FaqEntry {
   q: string;
@@ -19,7 +20,7 @@ export interface ToolPageTemplateProps {
   howItWorksVisual: ReactNode;
   reasons: string[];
   whoItsFor: string[];
-  pricing: { price: string; note?: string };
+  pricing: { price: { prefix?: string; amount: number; suffix?: string }; note?: string };
   faq: FaqEntry[];
   closingPrimary: ReactElement;
   closingSecondary: ReactElement;
@@ -103,7 +104,7 @@ export function ToolPageTemplate({
         <div className="flex flex-col gap-2 rounded-2xl border border-[color:var(--titer-border)] p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <span className="text-xl font-semibold text-[color:var(--titer-ink)]">
-              {pricing.price}
+              <LocalizedPrice {...pricing.price} />
             </span>
             {pricing.note ? (
               <p className="mt-1 text-sm text-[color:var(--titer-muted)]">{pricing.note}</p>

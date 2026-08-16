@@ -147,7 +147,7 @@ export default function ScorePage() {
         howItWorksVisual={<ScoreExample />}
         reasons={REASONS}
         whoItsFor={WHO}
-        pricing={{ price: "Free → $12/mo", note: "Free covers occasional checks. Pro adds unlimited scans and fixes." }}
+        pricing={{ price: { prefix: "Free → ", amount: 12, suffix: "/mo" }, note: "Free covers occasional checks. Pro adds unlimited scans and fixes." }}
         faq={FAQ}
         closingPrimary={
           <Button size="lg" nativeButton={false} render={<Link href="/measure" />}>

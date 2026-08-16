@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { TiterDial } from "@/components/titer/titer-dial";
 import { RequestDialog } from "@/components/marketing/request-dialog";
 import { LiveDemoAnimation } from "@/components/marketing/live-demo-animation";
+import { LocalizedPrice } from "@/components/marketing/localized-price";
 
 // Four pillars: MEASURE (one piece of content) / QUALITY (every page on a
 // site) / AUDIT (many pieces against a policy) / WATCH (your brand in AI
@@ -21,7 +22,7 @@ const TOOLS = [
     pillar: "Measure",
     tagline: "How strongly your text connects emotionally, with per-sentence fixes.",
     buyer: "for writers & teams",
-    price: "Free → $12/mo",
+    price: { prefix: "Free → ", amount: 12, suffix: "/mo" },
     // titer is "how emotionally resonant this reads" (100 = highly resonant) --
     // see ScoreCombiner.verdict / emotional_tone.yaml bands on the backend.
     direction: "higher-is-better" as const,
@@ -60,7 +61,7 @@ const TOOLS = [
     pillar: "Audit",
     tagline: "Check every piece against your policy — and prove you did.",
     buyer: "for compliance & regulated content",
-    price: "From $299/mo",
+    price: { prefix: "From ", amount: 299, suffix: "/mo" },
     cta: "demo" as const,
   },
   {
@@ -68,7 +69,7 @@ const TOOLS = [
     pillar: "Watch",
     tagline: "How often AI answers mention and cite your brand.",
     buyer: "for brand & marketing",
-    price: "From $99/mo",
+    price: { prefix: "From ", amount: 99, suffix: "/mo" },
     direction: "higher-is-better" as const,
     demoScore: 61,
     // Visibility is demo-led, not self-serve (see the "Book a demo leads"
@@ -217,7 +218,9 @@ export default function Home() {
                 {/* Pinned to the bottom of the (flex-1) card regardless of how tall the
                     dial/badge above it is, so all four buttons in the row line up. */}
                 <div className="mt-auto flex flex-col items-center gap-4">
-                  <span className="text-sm text-[color:var(--titer-muted)]">{tool.price}</span>
+                  <span className="text-sm text-[color:var(--titer-muted)]">
+                    {typeof tool.price === "string" ? tool.price : <LocalizedPrice {...tool.price} />}
+                  </span>
                   <span className="text-sm text-[color:var(--titer-muted)]">{tool.buyer}</span>
                   {tool.cta === "demo" ? (
                     <RequestDialog

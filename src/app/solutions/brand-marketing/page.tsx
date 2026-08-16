@@ -45,7 +45,7 @@ export default function BrandMarketingSolutionPage() {
       toolMappings={TOOL_MAPPINGS}
       workflow={WORKFLOW}
       reasons={REASONS}
-      pricingTier={{ name: "Business", price: "$499/mo", note: "Includes Titer Visibility." }}
+      pricingTier={{ name: "Business", price: { amount: 499, suffix: "/mo" }, note: "Includes Titer Visibility." }}
     />
   );
 }

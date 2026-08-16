@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RequestDialog } from "@/components/marketing/request-dialog";
+import { LocalizedPrice } from "@/components/marketing/localized-price";
 
 interface ToolMapping {
   tool: string;
@@ -21,7 +22,7 @@ export interface SolutionPageTemplateProps {
   toolMappings: ToolMapping[];
   workflow: WorkflowStep[];
   reasons: string[];
-  pricingTier: { name: string; price: string; note?: string };
+  pricingTier: { name: string; price: { prefix?: string; amount: number; suffix?: string }; note?: string };
   /** Compliance's audit-trail / honesty callout; omitted on other segments. */
   extraSection?: ReactNode;
 }
@@ -130,7 +131,9 @@ export function SolutionPageTemplate({
               <span className="text-xl font-semibold text-[color:var(--titer-ink)]">
                 {pricingTier.name}
               </span>
-              <span className="text-[color:var(--titer-muted)]">{pricingTier.price}</span>
+              <span className="text-[color:var(--titer-muted)]">
+                <LocalizedPrice {...pricingTier.price} />
+              </span>
             </div>
             {pricingTier.note ? (
               <p className="mt-1 text-sm text-[color:var(--titer-muted)]">{pricingTier.note}</p>

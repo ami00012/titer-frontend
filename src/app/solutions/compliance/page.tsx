@@ -64,7 +64,7 @@ export default function ComplianceSolutionPage() {
       toolMappings={TOOL_MAPPINGS}
       workflow={WORKFLOW}
       reasons={REASONS}
-      pricingTier={{ name: "Compliance Starter", price: "$299/mo", note: "3 seats, 3 policies, 500 checks a month, all 3 policy packs." }}
+      pricingTier={{ name: "Compliance Starter", price: { amount: 299, suffix: "/mo" }, note: "3 seats, 3 policies, 500 checks a month, all 3 policy packs." }}
       extraSection={<HonestyCallout />}
     />
   );

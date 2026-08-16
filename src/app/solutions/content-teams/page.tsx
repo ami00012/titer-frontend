@@ -45,7 +45,7 @@ export default function ContentTeamsSolutionPage() {
       toolMappings={TOOL_MAPPINGS}
       workflow={WORKFLOW}
       reasons={REASONS}
-      pricingTier={{ name: "Studio", price: "$99/mo", note: "Custom dimensions plus site-wide audits." }}
+      pricingTier={{ name: "Studio", price: { amount: 99, suffix: "/mo" }, note: "Custom dimensions plus site-wide audits." }}
     />
   );
 }

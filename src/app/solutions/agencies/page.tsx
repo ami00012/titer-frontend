@@ -45,7 +45,7 @@ export default function AgenciesSolutionPage() {
       toolMappings={TOOL_MAPPINGS}
       workflow={WORKFLOW}
       reasons={REASONS}
-      pricingTier={{ name: "Agency", price: "$349/mo", note: "Multiple client workspaces, higher audit volume." }}
+      pricingTier={{ name: "Agency", price: { amount: 349, suffix: "/mo" }, note: "Multiple client workspaces, higher audit volume." }}
     />
   );
 }

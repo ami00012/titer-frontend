@@ -139,7 +139,7 @@ export default function VisibilityPage() {
         howItWorksVisual={<VisibilityExample />}
         reasons={REASONS}
         whoItsFor={WHO}
-        pricing={{ price: "From $99/mo", note: "Priced by brand and competitors tracked." }}
+        pricing={{ price: { prefix: "From ", amount: 99, suffix: "/mo" }, note: "Priced by brand and competitors tracked." }}
         faq={FAQ}
         closingPrimary={
           <RequestDialog mode="demo" trigger={<Button size="lg">Book a demo</Button>} />
