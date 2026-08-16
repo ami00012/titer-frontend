@@ -37,12 +37,30 @@ async function buildHeaders(init: RequestInit): Promise<Record<string, string>> 
   };
 }
 
+/**
+ * A stale X-Workspace-Id (e.g. left over from a previous account on the same
+ * browser -- see the logout flow's clearWorkspace() call) makes
+ * WorkspaceResolutionFilter 404 with this exact message, on every request
+ * including /v1/me -- which is otherwise how the frontend would normally
+ * self-correct a bad workspace ID. Recognize that specific case and drop the
+ * stale ID so the next request (a retry, a refetch) omits the header and
+ * falls back to the caller's default workspace instead of repeating the 404.
+ */
+function clearWorkspaceIfStale(status: number, body: unknown, hadWorkspaceHeader: boolean) {
+  if (!hadWorkspaceHeader || status !== 404) return;
+  const message = (body as { error?: { message?: string } } | undefined)?.error?.message;
+  if (message === "Workspace not found") {
+    useWorkspaceStore.getState().clearWorkspace();
+  }
+}
+
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = await buildHeaders(init);
   const res = await fetch(`${API_URL}${path}`, { ...init, headers });
 
   if (!res.ok) {
     const body = await res.json().catch(() => undefined);
+    clearWorkspaceIfStale(res.status, body, "X-Workspace-Id" in headers);
     throw new ApiError(res.status, body);
   }
 
@@ -57,6 +75,7 @@ export async function apiFetchBlob(path: string, init: RequestInit = {}): Promis
 
   if (!res.ok) {
     const body = await res.json().catch(() => undefined);
+    clearWorkspaceIfStale(res.status, body, "X-Workspace-Id" in headers);
     throw new ApiError(res.status, body);
   }
   return res.blob();
