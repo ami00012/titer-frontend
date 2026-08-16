@@ -83,20 +83,22 @@ export default function DashboardPage() {
           const Icon = pillar.icon;
           const reversed = index % 2 === 1;
           return (
-            <Card key={pillar.href}>
+            <Card key={pillar.href} className="transition-colors hover:ring-foreground/20">
               <CardContent
-                className={`flex flex-col gap-6 sm:items-start ${reversed ? "sm:flex-row-reverse" : "sm:flex-row"}`}
+                className={`flex flex-col gap-6 sm:items-center ${reversed ? "sm:flex-row-reverse" : "sm:flex-row"}`}
               >
-                <div className="flex shrink-0 flex-col gap-2 sm:w-56">
-                  <div className="flex size-9 items-center justify-center rounded-md bg-muted text-foreground">
+                <div className="flex shrink-0 flex-col gap-3 sm:w-56">
+                  <div className="flex size-10 items-center justify-center rounded-md bg-muted text-foreground ring-1 ring-border">
                     <Icon className="size-5" />
                   </div>
-                  <span className="text-sm font-medium text-muted-foreground">{pillar.title}</span>
-                  <h2 className="text-xl font-semibold">{pillar.question}</h2>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-muted-foreground">{pillar.title}</span>
+                    <h2 className="text-xl font-semibold text-balance">{pillar.question}</h2>
+                  </div>
                 </div>
                 <div className="flex flex-1 flex-col gap-3">
                   <p className="text-secondary-foreground">{pillar.description}</p>
-                  <ol className="flex flex-col gap-1 text-sm text-secondary-foreground">
+                  <ol className="flex flex-col gap-1 border-l border-border pl-3 text-sm text-secondary-foreground">
                     {pillar.steps.map((step, stepIndex) => (
                       <li key={step} className="flex gap-2">
                         <span className="text-muted-foreground">{stepIndex + 1}.</span>
