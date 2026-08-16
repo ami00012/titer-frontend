@@ -46,7 +46,7 @@ const PILLARS: Pillar[] = [
     title: "Visibility",
     question: "Does AI even mention you?",
     description:
-      "Ask Claude the real questions your customers ask. See whether your brand comes up in the answer -- and how it's characterized when it does.",
+      "Ask AI the real questions your customers ask, on a schedule, not one prompt at a time. See whether your brand comes up in the answer -- and how it's characterized when it does.",
     icon: EyeIcon,
     steps: ["Track your brand (or a competitor)", "Add the questions real customers ask", "See if you're mentioned, cited, and how"],
   },

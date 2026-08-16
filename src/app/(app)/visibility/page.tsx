@@ -37,7 +37,7 @@ export default function VisibilityPage() {
       <div>
         <h1 className="text-2xl font-semibold">Titer Visibility</h1>
         <p className="text-secondary-foreground">
-          Ask Claude your customers&apos; real questions, see whether your brand comes up, and how it&apos;s
+          Ask AI your customers&apos; real questions, see whether your brand comes up, and how it&apos;s
           characterized when it does.
         </p>
       </div>
@@ -176,7 +176,7 @@ function BrandPanel({ brand }: { brand: Brand }) {
               <CardDescription>{brand.domain}</CardDescription>
             </div>
             <Button onClick={() => runMutation.mutate()} disabled={runMutation.isPending || activeQueries.length === 0}>
-              {runMutation.isPending ? "Asking Claude…" : "Run check"}
+              {runMutation.isPending ? "Asking AI…" : "Run check"}
             </Button>
           </div>
         </CardHeader>
@@ -228,7 +228,7 @@ function QueryResultCard({ query, brandName }: { query: BrandQuery; brandName: s
       <CardContent className="flex flex-col gap-3 pt-6">
         <p className="text-sm font-medium">{query.text}</p>
         {!run ? (
-          <p className="text-sm text-muted-foreground">Not checked yet — run a check to see how Claude answers this.</p>
+          <p className="text-sm text-muted-foreground">Not checked yet — run a check to see how AI answers this.</p>
         ) : (
           <>
             <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -252,7 +252,7 @@ function QueryResultCard({ query, brandName }: { query: BrandQuery; brandName: s
               className="self-start text-xs text-muted-foreground underline underline-offset-2"
               onClick={() => setExpanded((v) => !v)}
             >
-              {expanded ? "Hide Claude's answer" : "Show Claude's answer"}
+              {expanded ? "Hide AI's answer" : "Show AI's answer"}
             </button>
             {expanded ? (
               <p className="rounded-md border border-border bg-muted/30 p-3 text-sm text-secondary-foreground">{run.rawAnswer}</p>

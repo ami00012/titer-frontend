@@ -127,7 +127,7 @@ const SEGMENTS = [
   },
   {
     audience: "Brand & marketing",
-    reason: "See what Claude says about your brand — and where it's wrong.",
+    reason: "See what AI says about your brand — and where it's wrong.",
     cta: "See Titer Visibility",
     href: "/product/visibility",
   },
