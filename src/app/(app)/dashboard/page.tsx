@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
+import { GaugeIcon, ShieldCheckIcon, EyeIcon, GlobeIcon, type LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { TiterDial } from "@/components/titer/titer-dial";
@@ -12,7 +13,8 @@ type Feature = {
   href: string;
   title: string;
   description: string;
-  gif: string | null;
+  icon: LucideIcon;
+  steps: string[];
 };
 
 const FEATURES: Feature[] = [
@@ -20,29 +22,32 @@ const FEATURES: Feature[] = [
     href: "/measure",
     title: "Measure",
     description:
-      "Paste text, a URL, or upload a video. Get a 0-100 score plus specific, quotable findings on any dimension -- emotional tone by default, or type your own: sarcasm, urgency, empathy.",
-    gif: "/demos/measure.gif",
+      "Score any piece of content on emotional tone, or any dimension you type yourself -- sarcasm, urgency, empathy.",
+    icon: GaugeIcon,
+    steps: ["Paste text, a URL, or upload a video", "Pick a dimension (or use the default)", "Get a 0-100 score plus specific, quotable findings"],
   },
   {
     href: "/compliance",
     title: "Compliance",
     description:
-      "Check content against a policy -- FTC disclosure, financial promotions, GDPR, and more -- and keep an auditor-ready record of every decision. Titer flags for human review; a qualified person makes the call.",
-    gif: "/demos/compliance.gif",
+      "Check content against a policy -- FTC disclosure, financial promotions, GDPR, and more -- with an auditor-ready record of every decision.",
+    icon: ShieldCheckIcon,
+    steps: ["Start from a built-in regulation pack", "Paste the content to check", "Titer flags for human review -- you make the call"],
   },
   {
     href: "/visibility",
     title: "Visibility",
     description:
-      "Ask Claude your customers' real questions and see whether your brand comes up in the answer -- and how it's characterized when it does.",
-    gif: null,
+      "Ask Claude your customers' real questions and see whether your brand comes up in the answer -- and how it's characterized.",
+    icon: EyeIcon,
+    steps: ["Track your brand (or a competitor)", "Add the questions real customers ask", "See if you're mentioned, cited, and how"],
   },
   {
     href: "/quality",
     title: "Quality",
-    description:
-      "Audit a whole site page by page: broken links, thin content, whether AI crawlers can even read it.",
-    gif: null,
+    description: "Audit a whole site page by page: broken links, thin content, whether AI crawlers can even read it.",
+    icon: GlobeIcon,
+    steps: ["Enter a site URL", "Titer crawls it page by page", "Get a page-by-page breakdown of issues"],
   },
 ];
 
@@ -96,27 +101,35 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          {FEATURES.map((feature) => (
-            <Card key={feature.href}>
-              {feature.gif ? (
-                // eslint-disable-next-line @next/next/no-img-element -- animated GIF; next/image strips animation unless unoptimized.
-                <img src={feature.gif} alt={`${feature.title} walkthrough`} className="w-full" />
-              ) : (
-                <div className="flex h-[157px] items-center justify-center bg-muted/40 text-sm text-muted-foreground">
-                  {feature.title}
-                </div>
-              )}
-              <CardHeader>
-                <CardTitle>{feature.title}</CardTitle>
-                <CardDescription>{feature.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link href={feature.href} className={buttonVariants({ variant: "outline", size: "sm" })}>
-                  Try {feature.title} →
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
+          {FEATURES.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <Card key={feature.href}>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-foreground">
+                      <Icon className="size-4" />
+                    </div>
+                    <CardTitle>{feature.title}</CardTitle>
+                  </div>
+                  <CardDescription>{feature.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-3">
+                  <ol className="flex flex-col gap-1.5 text-sm text-secondary-foreground">
+                    {feature.steps.map((step, index) => (
+                      <li key={step} className="flex gap-2">
+                        <span className="text-muted-foreground">{index + 1}.</span>
+                        {step}
+                      </li>
+                    ))}
+                  </ol>
+                  <Link href={feature.href} className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}>
+                    Try {feature.title} →
+                  </Link>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </div>
