@@ -1,17 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Script from "next/script";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            nonce: string;
+            callback: (response: { credential: string }) => void;
+          }) => void;
+          renderButton: (
+            parent: HTMLElement,
+            options: Record<string, string | number>,
+          ) => void;
+        };
+      };
+    };
+  }
+}
+
+async function sha256Hex(value: string) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleScriptLoaded, setGoogleScriptLoaded] = useState(false);
+  const googleButtonRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/dashboard";
@@ -42,13 +72,52 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     router.refresh();
   }
 
-  async function handleGoogle() {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=${next}` },
-    });
-  }
+  useEffect(() => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!googleScriptLoaded || !clientId || !googleButtonRef.current) return;
+
+    let cancelled = false;
+
+    (async () => {
+      const nonce = crypto.randomUUID();
+      const hashedNonce = await sha256Hex(nonce);
+      if (cancelled || !window.google || !googleButtonRef.current) return;
+
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        nonce: hashedNonce,
+        callback: async (response) => {
+          const supabase = createClient();
+          const { error } = await supabase.auth.signInWithIdToken({
+            provider: "google",
+            token: response.credential,
+            nonce,
+          });
+
+          if (error) {
+            toast.error(error.message);
+            return;
+          }
+
+          router.push(next);
+          router.refresh();
+        },
+      });
+
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+        text: mode === "signup" ? "signup_with" : "continue_with",
+        shape: "rectangular",
+        width: 320,
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [googleScriptLoaded, mode, next, router]);
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-6">
@@ -83,9 +152,12 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         or
         <div className="h-px flex-1 bg-border" />
       </div>
-      <Button variant="outline" onClick={handleGoogle}>
-        Continue with Google
-      </Button>
+      <Script
+        src="https://accounts.google.com/gsi/client"
+        strategy="afterInteractive"
+        onLoad={() => setGoogleScriptLoaded(true)}
+      />
+      <div ref={googleButtonRef} className="flex justify-center" />
     </div>
   );
 }
