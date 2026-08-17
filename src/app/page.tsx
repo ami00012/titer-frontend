@@ -161,6 +161,9 @@ export default function Home() {
       <header className="mx-auto flex w-full max-w-[1180px] items-center justify-between px-6 py-6">
         <span className="text-lg font-semibold text-[color:var(--titer-ink)]">Titer</span>
         <nav className="flex items-center gap-3">
+          <Button variant="ghost" nativeButton={false} render={<Link href="/pricing" />}>
+            Pricing
+          </Button>
           <Button variant="ghost" nativeButton={false} render={<Link href="/login" />}>
             Log in
           </Button>
