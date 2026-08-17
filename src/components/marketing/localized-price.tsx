@@ -1,6 +1,6 @@
 "use client";
 
-import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
+import { useLocalizedCurrency } from "@/hooks/use-currency-symbol";
 
 export function LocalizedPrice({
   amount,
@@ -11,12 +11,12 @@ export function LocalizedPrice({
   prefix?: string;
   suffix?: string;
 }) {
-  const symbol = useCurrencySymbol();
+  const { symbol, convert } = useLocalizedCurrency();
   return (
     <>
       {prefix}
       {symbol}
-      {amount}
+      {convert(amount)}
       {suffix}
     </>
   );

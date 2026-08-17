@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { RequestDialog } from "@/components/marketing/request-dialog";
-import { useCurrencySymbol } from "@/hooks/use-currency-symbol";
+import { useLocalizedCurrency } from "@/hooks/use-currency-symbol";
 
 type CtaKind = "free" | "trial" | "demo";
 
@@ -101,7 +101,7 @@ function TierCta({ cta }: { cta: CtaKind }) {
 
 export function PricingTable() {
   const [showComparison, setShowComparison] = useState(false);
-  const symbol = useCurrencySymbol();
+  const { symbol, convert } = useLocalizedCurrency();
 
   return (
     <div className="flex flex-col gap-12">
@@ -126,14 +126,14 @@ export function PricingTable() {
 
             <div>
               <span className="text-2xl font-semibold text-[color:var(--titer-ink)]">
-                {tier.monthly === 0 ? "Free" : `${symbol}${tier.monthly}`}
+                {tier.monthly === 0 ? "Free" : `${symbol}${convert(tier.monthly)}`}
               </span>
               {tier.monthly > 0 ? (
                 <span className="text-sm text-[color:var(--titer-muted)]">/mo</span>
               ) : null}
               {tier.foundingMonthly ? (
                 <p className="mt-1 text-xs text-[color:var(--titer-muted)]">
-                  <span className="font-medium text-[color:var(--titer-ink)]">{symbol}{tier.foundingMonthly}/mo</span> founding
+                  <span className="font-medium text-[color:var(--titer-ink)]">{symbol}{convert(tier.foundingMonthly)}/mo</span> founding
                   rate for the first 50 customers
                 </p>
               ) : null}
@@ -209,7 +209,7 @@ export function PricingTable() {
               <span className="font-semibold text-[color:var(--titer-ink)]">Compliance Starter</span>
             </div>
             <div>
-              <span className="text-2xl font-semibold text-[color:var(--titer-ink)]">{symbol}299</span>
+              <span className="text-2xl font-semibold text-[color:var(--titer-ink)]">{symbol}{convert(299)}</span>
               <span className="text-sm text-[color:var(--titer-muted)]">/mo</span>
             </div>
             <ul className="flex flex-col gap-2 text-sm text-[color:var(--titer-muted)]">
@@ -235,7 +235,7 @@ export function PricingTable() {
               <span className="font-semibold text-[color:var(--titer-ink)]">Compliance Pro</span>
             </div>
             <div>
-              <span className="text-2xl font-semibold text-[color:var(--titer-ink)]">{symbol}899</span>
+              <span className="text-2xl font-semibold text-[color:var(--titer-ink)]">{symbol}{convert(899)}</span>
               <span className="text-sm text-[color:var(--titer-muted)]">/mo</span>
             </div>
             <ul className="flex flex-col gap-2 text-sm text-[color:var(--titer-muted)]">
