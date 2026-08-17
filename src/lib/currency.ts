@@ -63,10 +63,12 @@ export function currencyForRegion(region: string | null): CurrencyInfo {
 /**
  * Converts a USD amount to the target currency and rounds to a "clean"
  * sticker price instead of showing raw FX-converted cents. $0 always stays
- * 0 (free tier, no currency to convert).
+ * 0 (free tier, no currency to convert), and rate 1 (USD itself) always
+ * passes through exactly unchanged -- rounding a USD price that needs no
+ * conversion at all previously turned $349 into a wrong "$350".
  */
 export function convertAmount(amountUsd: number, rate: number): number {
-  if (amountUsd === 0) return 0;
+  if (amountUsd === 0 || rate === 1) return amountUsd;
   const converted = amountUsd * rate;
   if (converted >= 1000) return Math.round(converted / 100) * 100;
   if (converted >= 100) return Math.round(converted / 10) * 10;
