@@ -30,7 +30,7 @@ const TIERS: Tier[] = [
     name: "Free",
     monthly: 0,
     cta: "free",
-    features: ["Titer Score", "15 scans a month"],
+    features: ["Titer Score", "1 scan a month"],
   },
   {
     name: "Pro",
@@ -61,7 +61,7 @@ const TIERS: Tier[] = [
 ];
 
 const COMPARISON_ROWS: { feature: string; values: string[] }[] = [
-  { feature: "Titer Score scans", values: ["15/mo", "100/day", "200/day", "1,200/day", "2,000/day"] },
+  { feature: "Titer Score scans", values: ["1/mo", "100/day", "200/day", "1,200/day", "2,000/day"] },
   { feature: "Fixes", values: ["3/mo", "150/mo", "800/mo", "1,200/mo", "1,200/mo"] },
   { feature: "Custom X dimensions", values: ["—", "✓", "✓", "✓", "✓"] },
   { feature: "Pages per audit", values: ["—", "10", "100", "500", "100"] },
@@ -101,7 +101,7 @@ function TierCta({ cta }: { cta: CtaKind }) {
 
 export function PricingTable() {
   const [showComparison, setShowComparison] = useState(false);
-  const { symbol, convert } = useLocalizedCurrency();
+  const { symbol, convert } = useLocalizedCurrency(true);
 
   return (
     <div className="flex flex-col gap-12">
