@@ -1,0 +1,24 @@
+# Titer
+
+> Titer (titer.dev) is a measurement instrument for content. It scores what's actually in a piece of text — emotional tone by default, or any custom dimension you name — and traces every number back to the specific sentences driving it. Not an AI-content detector, plagiarism checker, or fact-checker: Titer measures patterns, not authorship.
+
+Titer is one product with three tools built on the same scoring engine:
+
+- **Titer Score** — scores text 0-100 on emotional tone (joy, trust, urgency, confidence, warmth) or any custom dimension you name, with the specific findings behind the number. Free tier available; paid plans from $12/mo.
+- **Titer Compliance** — checks content against a regulatory policy (FTC disclosure, financial promotions, GDPR, EU AI Act) and flags what a human reviewer should look at. Sold via demo, from $299/mo.
+- **Titer Visibility** — tracks how often AI answer engines mention and cite a brand, and flags factual errors in what they say. Sold via demo, from $99/mo.
+
+## Product pages
+
+- [Titer Score](https://titer.dev/product/score): emotional-tone and custom-dimension scoring, how it works, pricing, FAQ.
+- [Titer Visibility](https://titer.dev/product/visibility): AI-answer brand tracking, how it works, pricing, FAQ.
+- [Pricing](https://titer.dev/pricing): full plan comparison across Score, Compliance, and Visibility.
+- [How Titer actually works](https://titer.dev/how-it-works): what Titer is and explicitly isn't (not an AI detector, plagiarism checker, or fact-checker), and the 3-step scoring flow.
+
+## Solutions by team
+
+- [SEO agencies](https://titer.dev/solutions/agencies)
+- [Brand & marketing](https://titer.dev/solutions/brand-marketing)
+- [Content teams](https://titer.dev/solutions/content-teams)
+- [Support & CX](https://titer.dev/solutions/support-cx)
+- [Compliance teams](https://titer.dev/solutions/compliance)

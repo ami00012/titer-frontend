@@ -152,7 +152,9 @@ export default function Home() {
             "@context": "https://schema.org",
             "@type": "Organization",
             name: "Titer",
+            alternateName: "Titer.dev",
             url: "https://titer.dev",
+            logo: "https://titer.dev/opengraph-image",
             description:
               "The measurement instrument for content: Titer Score, Titer Compliance, and Titer Visibility.",
           }),

@@ -46,6 +46,22 @@ export function ToolPageTemplate({
 }: ToolPageTemplateProps) {
   return (
     <main className="mx-auto flex w-full max-w-[1180px] flex-1 flex-col px-6">
+      {/* Mirrors the visible FAQ section below verbatim -- AI answer engines and
+          Google's own AI Overviews lift FAQPage-marked-up Q&A pairs directly. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faq.map((entry) => ({
+              "@type": "Question",
+              name: entry.q,
+              acceptedAnswer: { "@type": "Answer", text: entry.a },
+            })),
+          }),
+        }}
+      />
       {/* Hero */}
       <div className="flex flex-col items-center gap-4 py-16 text-center">
         <h1 className="text-4xl font-semibold tracking-tight text-[color:var(--titer-ink)] sm:text-5xl">
