@@ -1,4 +1,10 @@
+import { config as loadEnv } from "dotenv";
 import { defineConfig } from "prisma/config";
+
+// The Prisma CLI only auto-loads `.env` by default, not `.env.local` (the
+// convention this Next.js project otherwise uses everywhere) -- load it
+// explicitly so `prisma migrate`/`studio` see the same vars `next dev` does.
+loadEnv({ path: ".env.local" });
 
 // CLI-only config (migrate/introspect/studio) -- needs a direct, non-pooled
 // connection since migrations can't run through pgbouncer. The app's

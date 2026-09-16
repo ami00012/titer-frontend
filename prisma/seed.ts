@@ -1,6 +1,5 @@
-import { PrismaClient, type AssetType, type PricingType, type Prisma, type VerificationSummary } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import type { AssetType, PricingType, Prisma, VerificationSummary } from "@prisma/client";
+import { prisma } from "../src/lib/db";
 
 const DEMO_SELLER_ID = "00000000-0000-0000-0000-0000000000s1";
 const DEMO_SELLER_EMAIL = "demo-seller@example.com";
