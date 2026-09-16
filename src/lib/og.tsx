@@ -1,8 +1,9 @@
 import { ImageResponse } from "next/og";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
-/** Shared OG card renderer -- ink-on-white, matches the site's design authority (no gradients/color outside the logo mark). */
+/** Shared OG card renderer -- ink-on-white, no gradients/color outside the wordmark. */
 export function renderOgImage(title: string, subtitle?: string) {
   return new ImageResponse(
     (
@@ -18,7 +19,7 @@ export function renderOgImage(title: string, subtitle?: string) {
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", fontSize: 36, fontWeight: 700, color: "#111318" }}>Titer</div>
+        <div style={{ display: "flex", fontSize: 36, fontWeight: 700, color: "#111318" }}>{BRAND_NAME}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           <div
             style={{
@@ -28,17 +29,16 @@ export function renderOgImage(title: string, subtitle?: string) {
               color: "#111318",
               lineHeight: 1.15,
               letterSpacing: "-0.02em",
-              maxWidth: 980,
             }}
           >
             {title}
           </div>
           {subtitle ? (
-            <div style={{ display: "flex", fontSize: 28, color: "#5b6472", maxWidth: 900 }}>{subtitle}</div>
+            <div style={{ display: "flex", fontSize: 28, color: "#5b6270" }}>{subtitle}</div>
           ) : null}
         </div>
       </div>
     ),
-    { ...OG_SIZE },
+    OG_SIZE,
   );
 }

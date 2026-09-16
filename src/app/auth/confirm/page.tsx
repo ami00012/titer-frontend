@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
+import { BRAND_NAME } from "@/lib/brand";
 import { toast } from "sonner";
 
 const VALID_TYPES = ["signup", "invite", "magiclink", "recovery", "email_change"] as const;
@@ -75,7 +76,7 @@ function ConfirmForm() {
 export default function ConfirmPage() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 py-16">
-      <span className="text-lg font-semibold">Titer</span>
+      <span className="text-lg font-semibold">{BRAND_NAME}</span>
       <h1 className="text-xl font-semibold">Confirm your email</h1>
       <Suspense>
         <ConfirmForm />

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { AuthForm } from "@/components/titer/auth-form";
+import { AuthForm } from "@/components/auth/auth-form";
 
 export default function SignupPage() {
   return (

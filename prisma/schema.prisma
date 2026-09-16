@@ -1,0 +1,303 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Connection strings live in prisma.config.ts (CLI/migrations) and
+// src/lib/db.ts (runtime, via a driver adapter) -- Prisma 7 no longer
+// reads them from the schema file.
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Users & roles
+// ---------------------------------------------------------------------------
+
+enum Role {
+  BUYER
+  SELLER
+  ADMIN
+}
+
+/// id matches the Supabase auth.users.id (uuid) -- Supabase remains the
+/// credential/session source of truth, this table holds the app-facing
+/// profile. Rows are lazily upserted on first authenticated request, see
+/// src/lib/auth.ts.
+model User {
+  id        String   @id
+  email     String   @unique
+  name      String?
+  company   String?
+  bio       String?
+  country   String?
+  website   String?
+  /// Default persona for UI purposes only -- a user can both buy and sell
+  /// regardless of this value. Only ADMIN gates anything (the admin panel).
+  role      Role     @default(BUYER)
+  suspended Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assets        Asset[]
+  buyerRequests BuyerRequest[]
+  inquiries     Inquiry[]
+  offersMade    Offer[]         @relation("OfferBuyer")
+  offersReceived Offer[]        @relation("OfferSeller")
+  purchases     Transaction[]   @relation("TransactionBuyer")
+  sales         Transaction[]   @relation("TransactionSeller")
+  verifications Verification[]  @relation("VerifiedBy")
+}
+
+// ---------------------------------------------------------------------------
+// Assets
+// ---------------------------------------------------------------------------
+
+enum AssetType {
+  DIGITAL_BUSINESS
+  DOMAIN
+  AI_AGENT
+  DATASET
+  API
+  COMPUTE
+}
+
+enum AssetStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  RESERVED
+  UNDER_OFFER
+  SOLD
+  RENTED
+  ARCHIVED
+}
+
+enum PricingType {
+  FIXED
+  NEGOTIABLE
+  AUCTION
+  MONTHLY
+  HOURLY
+  USAGE_BASED
+}
+
+enum VerificationSummary {
+  UNVERIFIED
+  PARTIAL
+  VERIFIED
+}
+
+/// Generic asset model shared by every listing type. Fields specific to one
+/// asset type (e.g. GPU model for COMPUTE, record count for DATASET) live in
+/// `metadata` and are validated per-type with zod (src/lib/validation/asset.ts)
+/// rather than as a per-type table -- keeps the schema simple for V1.
+model Asset {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  title       String
+  description String
+  assetType   AssetType
+  status      AssetStatus @default(DRAFT)
+  category    String?
+  businessModel String?
+
+  price        Decimal?    @db.Decimal(14, 2)
+  currency     String      @default("USD")
+  pricingType  PricingType @default(FIXED)
+
+  sellerId String
+  seller   User   @relation(fields: [sellerId], references: [id])
+
+  revenue        Decimal? @db.Decimal(14, 2)
+  monthlyRevenue Decimal? @db.Decimal(14, 2)
+  profit         Decimal? @db.Decimal(14, 2)
+  monthlyProfit  Decimal? @db.Decimal(14, 2)
+  growthRate     Decimal? @db.Decimal(6, 2)
+  users          Int?
+  customers      Int?
+  traffic        Int?
+  valuation      Decimal? @db.Decimal(14, 2)
+
+  metadata Json @default("{}")
+
+  verificationSummary VerificationSummary @default(UNVERIFIED)
+  isSeedData          Boolean              @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  verifications Verification[]
+  inquiries     Inquiry[]
+  offers        Offer[]
+  transactions  Transaction[]
+  buyerRequestMatches BuyerRequest[] @relation("BuyerRequestAssetType")
+
+  @@index([assetType, status])
+  @@index([status, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Verification
+// ---------------------------------------------------------------------------
+
+enum VerificationType {
+  REVENUE_VERIFIED
+  TRAFFIC_VERIFIED
+  OWNERSHIP_VERIFIED
+  CUSTOMERS_VERIFIED
+  TECHNOLOGY_VERIFIED
+  IDENTITY_VERIFIED
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// `evidence` stores a private object-storage key/URL -- never returned by
+/// any public API, only rendered to the asset's seller and to admins.
+model Verification {
+  id         String             @id @default(cuid())
+  assetId    String
+  asset      Asset              @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  type       VerificationType
+  status     VerificationStatus @default(PENDING)
+  evidence   String?
+  verifiedById String?
+  verifiedBy   User?            @relation("VerifiedBy", fields: [verifiedById], references: [id])
+  verifiedAt DateTime?
+  createdAt  DateTime           @default(now())
+
+  @@unique([assetId, type])
+  @@index([assetId])
+}
+
+// ---------------------------------------------------------------------------
+// Buyer requests & matching
+// ---------------------------------------------------------------------------
+
+enum BuyerRequestStatus {
+  OPEN
+  MATCHED
+  CLOSED
+}
+
+model BuyerRequest {
+  id           String              @id @default(cuid())
+  userId       String
+  user         User                @relation(fields: [userId], references: [id])
+  description  String
+  assetType    AssetType?
+  budgetMin    Decimal?            @db.Decimal(14, 2)
+  budgetMax    Decimal?            @db.Decimal(14, 2)
+  requirements String?
+  status       BuyerRequestStatus  @default(OPEN)
+  createdAt    DateTime            @default(now())
+
+  /// Not a real FK -- kept only so Prisma generates a typed relation name
+  /// used by the matching helper's includes; matching itself is computed
+  /// on demand in src/lib/matching.ts, not persisted.
+  matchedAssets Asset[] @relation("BuyerRequestAssetType")
+}
+
+// ---------------------------------------------------------------------------
+// Inquiries ("Request Information")
+// ---------------------------------------------------------------------------
+
+enum InquiryStatus {
+  OPEN
+  RESPONDED
+  CLOSED
+}
+
+model Inquiry {
+  id        String        @id @default(cuid())
+  assetId   String
+  asset     Asset         @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  buyerId   String
+  buyer     User          @relation(fields: [buyerId], references: [id])
+  message   String?
+  status    InquiryStatus @default(OPEN)
+  createdAt DateTime      @default(now())
+
+  @@index([assetId])
+  @@index([buyerId])
+}
+
+// ---------------------------------------------------------------------------
+// Offers
+// ---------------------------------------------------------------------------
+
+enum OfferStatus {
+  SUBMITTED
+  SELLER_REVIEW
+  COUNTERED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  COMPLETED
+}
+
+model Offer {
+  id           String      @id @default(cuid())
+  assetId      String
+  asset        Asset       @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  buyerId      String
+  buyer        User        @relation("OfferBuyer", fields: [buyerId], references: [id])
+  sellerId     String
+  seller       User        @relation("OfferSeller", fields: [sellerId], references: [id])
+  offerPrice   Decimal     @db.Decimal(14, 2)
+  counterPrice Decimal?    @db.Decimal(14, 2)
+  currency     String      @default("USD")
+  message      String?
+  status       OfferStatus @default(SUBMITTED)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  transaction Transaction?
+
+  @@index([assetId])
+  @@index([buyerId])
+  @@index([sellerId])
+}
+
+// ---------------------------------------------------------------------------
+// Transactions & commission
+// ---------------------------------------------------------------------------
+
+enum TransactionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Transaction {
+  id               String            @id @default(cuid())
+  assetId          String
+  asset            Asset             @relation(fields: [assetId], references: [id])
+  offerId          String?           @unique
+  offer            Offer?            @relation(fields: [offerId], references: [id])
+  buyerId          String
+  buyer            User              @relation("TransactionBuyer", fields: [buyerId], references: [id])
+  sellerId         String
+  seller           User              @relation("TransactionSeller", fields: [sellerId], references: [id])
+  agreedPrice      Decimal           @db.Decimal(14, 2)
+  commissionRate   Decimal           @db.Decimal(5, 2)
+  commissionAmount Decimal           @db.Decimal(14, 2)
+  sellerProceeds   Decimal           @db.Decimal(14, 2)
+  status           TransactionStatus @default(PENDING)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([assetId])
+  @@index([status])
+}
+
+/// Admin-configurable commission rate per asset type (Phase 11).
+model CommissionRule {
+  assetType AssetType @id
+  ratePercent Decimal @db.Decimal(5, 2)
+  updatedAt DateTime  @updatedAt
+}

@@ -1,14 +1,13 @@
 import type { MetadataRoute } from "next";
-
-const BASE_URL = "https://titer.dev";
+import { SITE_URL } from "@/lib/brand";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/dashboard", "/settings", "/score", "/quality", "/visibility", "/login", "/signup"],
+      disallow: ["/dashboard", "/admin", "/login", "/signup"],
     },
-    sitemap: `${BASE_URL}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

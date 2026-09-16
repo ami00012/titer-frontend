@@ -81,19 +81,6 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-
-  /* Titer brand tokens. Source of truth: the existing home hero + dial cards.
-     Monochrome ink-on-white — the semantic ramp below is the ONLY color on
-     marketing surfaces, and never appears outside a dial. Do not inline
-     these hexes in components; reference the variables. */
-  --titer-ink: #111318;
-  --titer-muted: #5b6472;
-  --titer-border: #e7e9ee;
-
-  --status-good: #3fa34d;
-  --status-warning: #e8a33d;
-  --status-critical: #d6483b;
-  --dial-track: #e1e0d9;
 }
 
 .dark {
@@ -128,15 +115,6 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-
-  --titer-ink: #111318;
-  --titer-muted: #5b6472;
-  --titer-border: #e7e9ee;
-
-  --status-good: #3fa34d;
-  --status-warning: #e8a33d;
-  --status-critical: #d6483b;
-  --dial-track: #2c2c2a;
 }
 
 @layer base {

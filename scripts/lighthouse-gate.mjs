@@ -13,8 +13,8 @@ const BASE_URL = `http://localhost:${PORT}`;
 const THRESHOLD = 95;
 const PAGES = [
   { name: "home", path: "/" },
-  { name: "product/score", path: "/product/score" },
-  { name: "pricing", path: "/pricing" },
+  { name: "marketplace", path: "/marketplace" },
+  { name: "how-it-works", path: "/how-it-works" },
 ];
 
 // BUILD_ID specifically, not just the directory -- `next dev` also populates

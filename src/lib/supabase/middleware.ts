@@ -2,7 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isDevAuthBypassEnabled } from "@/lib/dev-bypass";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/measure", "/score", "/quality", "/visibility", "/settings"];
+// Browsing (/marketplace, /asset/*) stays public per product rule #1;
+// only account-gated actions and surfaces require a session.
+const PROTECTED_PREFIXES = ["/dashboard", "/sell", "/admin"];
 
 export async function updateSession(request: NextRequest) {
   if (isDevAuthBypassEnabled()) {

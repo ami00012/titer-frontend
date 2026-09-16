@@ -1,28 +1,26 @@
 import type { MetadataRoute } from "next";
+import { prisma } from "@/lib/db";
+import { SITE_URL } from "@/lib/brand";
+import { ASSET_TYPES } from "@/lib/validation/asset";
 
-const BASE_URL = "https://titer.dev";
+const STATIC_ROUTES = ["", "/marketplace", "/sell", "/buy", "/how-it-works", "/about"];
 
-// Public marketing pages only. Excludes /login, /signup, and the gated app
-// routes (/measure, /score, /quality, /visibility, /dashboard, /settings/*)
-// -- those sit behind auth and aren't meant to be indexed. /product/quality
-// is gone (folded into Score) and redirects rather than 404s -- not listed
-// here since a redirect target shouldn't itself be in the sitemap.
-const ROUTES = [
-  "",
-  "/product/score",
-  "/product/visibility",
-  "/pricing",
-  "/solutions/agencies",
-  "/solutions/brand-marketing",
-  "/solutions/content-teams",
-  "/solutions/support-cx",
-  "/solutions/compliance",
-  "/how-it-works",
-];
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [assets] = await Promise.all([
+    prisma.asset.findMany({ where: { status: "PUBLISHED" }, select: { slug: true, updatedAt: true } }),
+  ]);
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  return ROUTES.map((route) => ({
-    url: `${BASE_URL}${route}`,
+  const staticEntries = STATIC_ROUTES.map((route) => ({ url: `${SITE_URL}${route}`, lastModified: new Date() }));
+
+  const categoryEntries = ASSET_TYPES.map((type) => ({
+    url: `${SITE_URL}/marketplace/${type.toLowerCase().replace(/_/g, "-")}`,
     lastModified: new Date(),
   }));
+
+  const assetEntries = assets.map((asset) => ({
+    url: `${SITE_URL}/asset/${asset.slug}`,
+    lastModified: asset.updatedAt,
+  }));
+
+  return [...staticEntries, ...categoryEntries, ...assetEntries];
 }
