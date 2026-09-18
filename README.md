@@ -1,4 +1,4 @@
-# AI Asset Exchange
+# Titer
 
 A marketplace/brokerage for AI-era digital assets — digital businesses, domains, AI agents, datasets, APIs, and compute. See `PRODUCT.md`, `ARCHITECTURE.md`, `DATABASE.md`, and `ROADMAP.md` for the full picture.
 
