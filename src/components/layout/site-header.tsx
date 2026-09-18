@@ -9,8 +9,6 @@ const NAV = [
   { href: "/marketplace", label: "Marketplace" },
   { href: "/sell", label: "Sell" },
   { href: "/buy", label: "Buy" },
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/about", label: "About" },
 ];
 
 export async function SiteHeader() {

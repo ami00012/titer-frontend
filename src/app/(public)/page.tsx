@@ -3,6 +3,7 @@ import { BuildingIcon, GlobeIcon, BotIcon, DatabaseIcon, PlugIcon, CpuIcon } fro
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssetCard } from "@/components/marketplace/asset-card";
+import { ListingAnimation, VerifyMatchAnimation, BrokerDealAnimation } from "@/components/marketing/how-it-works-animation";
 import { prisma } from "@/lib/db";
 import { BRAND_TAGLINE } from "@/lib/brand";
 
@@ -16,9 +17,9 @@ const CATEGORIES = [
 ];
 
 const HOW_IT_WORKS = [
-  { title: "List or search", body: "Sellers list a business, domain, agent, dataset, API, or compute pool. Buyers search or describe what they want." },
-  { title: "We verify and match", body: "Claims get reviewed before a listing goes live. Buyer requests are matched against published assets." },
-  { title: "We broker the deal", body: "Offers, counters, and acceptance happen on-platform. We facilitate the transaction and take a commission on close." },
+  { title: "List or search", body: "Sellers list a business, domain, agent, dataset, API, or compute pool. Buyers search or describe what they want.", Animation: ListingAnimation },
+  { title: "We verify and match", body: "Claims get reviewed before a listing goes live. Buyer requests are matched against published assets.", Animation: VerifyMatchAnimation },
+  { title: "We broker the deal", body: "Offers, counters, and acceptance happen on-platform. We facilitate the transaction and take a commission on close.", Animation: BrokerDealAnimation },
 ];
 
 export default async function HomePage() {
@@ -98,8 +99,9 @@ export default async function HomePage() {
         <h2 className="mb-6 text-2xl font-semibold">How it works</h2>
         <div className="grid gap-6 sm:grid-cols-3">
           {HOW_IT_WORKS.map((step, i) => (
-            <Card key={step.title}>
-              <CardContent className="flex flex-col gap-2">
+            <Card key={step.title} className="overflow-hidden">
+              <step.Animation />
+              <CardContent className="flex flex-col gap-2 border-t border-border pt-4">
                 <span className="text-sm font-medium text-muted-foreground">Step {i + 1}</span>
                 <h3 className="text-lg font-semibold">{step.title}</h3>
                 <p className="text-sm text-secondary-foreground">{step.body}</p>

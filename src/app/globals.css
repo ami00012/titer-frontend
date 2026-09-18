@@ -128,3 +128,42 @@
     @apply font-sans;
   }
 }
+
+/* Homepage "how it works" step animations -- see src/components/marketing/how-it-works-animation.tsx */
+@keyframes step-card-cycle {
+  0%, 8% { opacity: 0; transform: translateY(10px) scale(0.96); }
+  16%, 78% { opacity: 1; transform: translateY(0) scale(1); }
+  86%, 100% { opacity: 0; transform: translateY(-6px) scale(0.98); }
+}
+
+@keyframes step-ring-pulse {
+  0% { transform: scale(0.6); opacity: 0.7; }
+  70%, 100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes step-line-draw {
+  0%, 10% { stroke-dashoffset: 64; }
+  55%, 100% { stroke-dashoffset: 0; }
+}
+
+@keyframes step-check-pop {
+  0%, 55% { opacity: 0; transform: scale(0.5); }
+  70%, 92% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.5); }
+}
+
+.animate-step-card-1 { animation: step-card-cycle 3.6s ease-in-out infinite; }
+.animate-step-card-2 { animation: step-card-cycle 3.6s ease-in-out infinite; animation-delay: 1.2s; }
+.animate-step-card-3 { animation: step-card-cycle 3.6s ease-in-out infinite; animation-delay: 2.4s; }
+.animate-step-ring-1 { animation: step-ring-pulse 2.4s ease-out infinite; }
+.animate-step-ring-2 { animation: step-ring-pulse 2.4s ease-out infinite; animation-delay: 1.2s; }
+.animate-step-line { animation: step-line-draw 3s ease-in-out infinite; }
+.animate-step-check { animation: step-check-pop 3s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-step-card-1, .animate-step-card-2, .animate-step-card-3,
+  .animate-step-ring-1, .animate-step-ring-2,
+  .animate-step-line, .animate-step-check {
+    animation: none;
+  }
+}
