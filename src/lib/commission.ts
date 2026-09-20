@@ -1,19 +1,24 @@
 import type { AssetType } from "@prisma/client";
-import { prisma } from "@/lib/db";
 
-/** Fallback rates if an admin hasn't (yet) overridden CommissionRule for a type -- Phase 11 defaults. */
+/**
+ * Hardcoded for V1 -- one admin, zero transactions, no config UI to build
+ * (AGENTS spec §1, §3). DIGITAL_BUSINESS and AI_AGENT are the only active V1
+ * categories; the rest keep a placeholder rate in case those types are ever
+ * unhidden, but are not reachable from any picker today.
+ */
 export const DEFAULT_COMMISSION_RATES: Record<AssetType, number> = {
-  DIGITAL_BUSINESS: 7.5,
+  DIGITAL_BUSINESS: 6,
+  AI_AGENT: 8,
   DOMAIN: 10,
-  AI_AGENT: 10,
   DATASET: 10,
   API: 10,
-  COMPUTE: 5,
+  COMPUTE: 3,
 };
 
-export async function getCommissionRate(assetType: AssetType): Promise<number> {
-  const rule = await prisma.commissionRule.findUnique({ where: { assetType } });
-  return rule ? Number(rule.ratePercent) : DEFAULT_COMMISSION_RATES[assetType];
+export const MINIMUM_FEE_USD = 500;
+
+export function getCommissionRate(assetType: AssetType): number {
+  return DEFAULT_COMMISSION_RATES[assetType];
 }
 
 export interface CommissionBreakdown {
@@ -23,9 +28,10 @@ export interface CommissionBreakdown {
   sellerProceeds: number;
 }
 
-/** Pure calculation, unit-testable independent of the DB call that supplies `commissionRate`. */
+/** Pure calculation. Commission is rate-based but never less than MINIMUM_FEE_USD. */
 export function computeCommission(agreedPrice: number, commissionRate: number): CommissionBreakdown {
-  const commissionAmount = Math.round(agreedPrice * (commissionRate / 100) * 100) / 100;
+  const rateAmount = Math.round(agreedPrice * (commissionRate / 100) * 100) / 100;
+  const commissionAmount = Math.max(rateAmount, MINIMUM_FEE_USD);
   return {
     agreedPrice,
     commissionRate,

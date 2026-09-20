@@ -60,7 +60,7 @@ export async function acceptOffer(offerId: string) {
   if (user.id !== offer.sellerId) throw new Error("Only the seller can accept an offer");
 
   const agreedPrice = Number(offer.counterPrice ?? offer.offerPrice);
-  const commissionRate = await getCommissionRate(offer.asset.assetType);
+  const commissionRate = getCommissionRate(offer.asset.assetType);
   const { commissionAmount, sellerProceeds } = computeCommission(agreedPrice, commissionRate);
 
   await prisma.$transaction([

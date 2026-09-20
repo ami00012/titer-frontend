@@ -3,7 +3,7 @@ import type { AssetTypeValue } from "@/lib/validation/asset";
 export interface FormField {
   name: string;
   label: string;
-  type: "text" | "textarea" | "number" | "url";
+  type: "text" | "textarea" | "number" | "url" | "checkbox";
   required?: boolean;
 }
 
@@ -12,6 +12,12 @@ export const BASE_FIELDS: FormField[] = [
   { name: "title", label: "Name", type: "text", required: true },
   { name: "description", label: "Description", type: "textarea", required: true },
   { name: "price", label: "Asking price", type: "number", required: true },
+  { name: "founderHoursPerWeek", label: "Founder hours/week to run this", type: "number" },
+  {
+    name: "confidential",
+    label: "Keep this listing confidential (name, URL, and screenshots hidden — metrics and Titer Score stay public)",
+    type: "checkbox",
+  },
 ];
 
 /** Type-specific fields -- map onto Asset.metadata (see src/lib/validation/asset.ts for the matching zod schema). */

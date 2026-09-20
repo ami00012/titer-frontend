@@ -46,6 +46,7 @@ model User {
   purchases     Transaction[]   @relation("TransactionBuyer")
   sales         Transaction[]   @relation("TransactionSeller")
   verifications Verification[]  @relation("VerifiedBy")
+  bids          Bid[]
 }
 
 // ---------------------------------------------------------------------------
@@ -87,6 +88,14 @@ enum VerificationSummary {
   VERIFIED
 }
 
+enum MoatType {
+  PROMPT
+  PROPRIETARY_DATA
+  WORKFLOW
+  DISTRIBUTION
+  INTEGRATION
+}
+
 /// Generic asset model shared by every listing type. Fields specific to one
 /// asset type (e.g. GPU model for COMPUTE, record count for DATASET) live in
 /// `metadata` and are validated per-type with zod (src/lib/validation/asset.ts)
@@ -123,6 +132,30 @@ model Asset {
   verificationSummary VerificationSummary @default(UNVERIFIED)
   isSeedData          Boolean              @default(false)
 
+  /// §2.4 -- when true, name/URL/screenshots are hidden on render, but metrics,
+  /// category, Titer Score, Model Risk block and Proof of Function stay public.
+  /// Never gated entirely and never excluded from the sitemap.
+  confidential Boolean @default(false)
+
+  /// §2.2 Model Risk block -- required for every AI_AGENT and any
+  /// DIGITAL_BUSINESS with inference in COGS. All nullable: absence means
+  /// "not applicable / not yet entered", rendered as such, never inferred.
+  primaryModelProvider        String?
+  fallbackProvider            String?
+  inferenceCostPctOfRevenue   Decimal?  @db.Decimal(5, 2)
+  grossMarginAt2xTokenPrice   Decimal?  @db.Decimal(5, 2)
+  moatType                    MoatType?
+  providerFeatureOverlapNotes String?
+  /// One-line plain-English verdict, written by the scorer -- not computed.
+  modelRiskVerdict            String?
+
+  /// §4.3 "Transfer checklist" -- what literally moves, account by account.
+  transferChecklist String?
+
+  /// §4.2 marketplace card/filter -- founder time to run this, weekly. A real
+  /// column (not metadata JSON) so it can be filtered and sorted directly.
+  founderHoursPerWeek Int?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -131,9 +164,151 @@ model Asset {
   offers        Offer[]
   transactions  Transaction[]
   buyerRequestMatches BuyerRequest[] @relation("BuyerRequestAssetType")
+  titerScore    TiterScore?
+  proofRuns     ProofRun[]
+  bidWindow     BidWindow?
 
   @@index([assetType, status])
   @@index([status, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Titer Score (§2.1)
+// ---------------------------------------------------------------------------
+
+/// Computed by a human against a published rubric and stored -- never inferred
+/// or estimated by the app. An Asset with no row here renders "Unscored".
+model TiterScore {
+  id      String @id @default(cuid())
+  assetId String @unique
+  asset   Asset  @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  total Int
+
+  revenueDurability   Int // 0-25
+  modelDependencyRisk Int // 0-25
+  transferComplexity  Int // 0-20
+  operationalLoad     Int // 0-15
+  evidenceStrength    Int // 0-15
+
+  rubricVersion String
+  /// Short admin justification -- a bare number isn't credible, the breakdown is.
+  justification String
+  scoredBy      String
+  scoredAt      DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Proof of Function (§2.3)
+// ---------------------------------------------------------------------------
+
+model ProofRun {
+  id      String @id @default(cuid())
+  assetId String
+  asset   Asset  @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  harnessVersion String
+  requestCount   Int
+  successRate    Decimal @db.Decimal(5, 2)
+  p50Ms          Int
+  p95Ms          Int
+  costPerTaskUsd Decimal @db.Decimal(10, 4)
+  errors         Json    @default("[]")
+  ranAt          DateTime
+
+  /// Private evidence -- never returned by any public-facing query.
+  artifactUrl String?
+
+  createdAt DateTime @default(now())
+
+  @@index([assetId, ranAt])
+}
+
+// ---------------------------------------------------------------------------
+// Open Bid (§2.5)
+// ---------------------------------------------------------------------------
+
+enum BidWindowStatus {
+  OPEN
+  CLOSED
+}
+
+model BidWindow {
+  id      String @id @default(cuid())
+  assetId String @unique
+  asset   Asset  @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  opensAt  DateTime @default(now())
+  closesAt DateTime
+  /// Private -- never returned by any public-facing query.
+  reservePrice Decimal @db.Decimal(14, 2)
+  status       BidWindowStatus @default(OPEN)
+
+  bids Bid[]
+}
+
+model Bid {
+  id          String    @id @default(cuid())
+  bidWindowId String
+  bidWindow   BidWindow @relation(fields: [bidWindowId], references: [id], onDelete: Cascade)
+  buyerId     String
+  buyer       User      @relation(fields: [buyerId], references: [id])
+  amount      Decimal   @db.Decimal(14, 2)
+  placedAt    DateTime  @default(now())
+
+  @@index([bidWindowId])
+}
+
+// ---------------------------------------------------------------------------
+// Wind-down funnel (§2.7)
+// ---------------------------------------------------------------------------
+
+model WindDownLead {
+  id             String   @id @default(cuid())
+  url            String
+  monthlyRevenue Decimal? @db.Decimal(14, 2)
+  email          String
+  createdAt      DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Valuation tool (§2.8)
+// ---------------------------------------------------------------------------
+
+model ValuationLead {
+  id               String    @id @default(cuid())
+  assetType        AssetType
+  mrr              Decimal   @db.Decimal(14, 2)
+  momGrowth        Decimal?  @db.Decimal(6, 2)
+  churn            Decimal?  @db.Decimal(6, 2)
+  inferenceCostPct Decimal?  @db.Decimal(5, 2)
+  email            String
+  estimatedLow     Decimal   @db.Decimal(14, 2)
+  estimatedHigh    Decimal   @db.Decimal(14, 2)
+  provisionalGrade String
+  createdAt        DateTime  @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Titer Index comparables (§2.9)
+// ---------------------------------------------------------------------------
+
+enum ComparableSource {
+  CLOSED_DEAL
+  PUBLIC_COMP
+}
+
+model Comparable {
+  id        String           @id @default(cuid())
+  assetType AssetType
+  sizeBand  String
+  multiple  Decimal          @db.Decimal(6, 2)
+  source    ComparableSource
+  dealDate  DateTime?
+  notes     String?
+  createdAt DateTime         @default(now())
+
+  @@index([assetType, sizeBand])
 }
 
 // ---------------------------------------------------------------------------
@@ -293,11 +468,4 @@ model Transaction {
 
   @@index([assetId])
   @@index([status])
-}
-
-/// Admin-configurable commission rate per asset type (Phase 11).
-model CommissionRule {
-  assetType AssetType @id
-  ratePercent Decimal @db.Decimal(5, 2)
-  updatedAt DateTime  @updatedAt
 }

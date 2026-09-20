@@ -3,7 +3,21 @@ import { prisma } from "@/lib/db";
 import { SITE_URL } from "@/lib/brand";
 import { ASSET_TYPES } from "@/lib/validation/asset";
 
-const STATIC_ROUTES = ["", "/marketplace", "/sell", "/buy", "/how-it-works", "/about"];
+const STATIC_ROUTES = [
+  "",
+  "/marketplace",
+  "/sell",
+  "/buy",
+  "/how-it-works",
+  "/about",
+  "/pricing",
+  "/methodology",
+  "/how-we-protect-you",
+  "/mandates",
+  "/wind-down",
+  "/valuate",
+  "/index",
+];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [assets] = await Promise.all([

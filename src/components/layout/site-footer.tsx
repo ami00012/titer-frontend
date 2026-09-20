@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BRAND_NAME } from "@/lib/brand";
+import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
 
 const COLUMNS = [
   {
@@ -7,11 +7,8 @@ const COLUMNS = [
     links: [
       { href: "/marketplace", label: "All assets" },
       { href: "/marketplace/digital-business", label: "Digital businesses" },
-      { href: "/marketplace/domain", label: "Domains" },
       { href: "/marketplace/ai-agent", label: "AI agents" },
-      { href: "/marketplace/dataset", label: "Datasets" },
-      { href: "/marketplace/api", label: "APIs" },
-      { href: "/marketplace/compute", label: "Compute" },
+      { href: "/mandates", label: "Buyer mandates" },
     ],
   },
   {
@@ -19,8 +16,18 @@ const COLUMNS = [
     links: [
       { href: "/how-it-works", label: "How it works" },
       { href: "/about", label: "About" },
+      { href: "/pricing", label: "Pricing" },
+      { href: "/methodology", label: "Methodology" },
+      { href: "/how-we-protect-you", label: "How we protect you" },
+    ],
+  },
+  {
+    title: "Get started",
+    links: [
       { href: "/sell", label: "Sell an asset" },
       { href: "/buy", label: "Buy an asset" },
+      { href: "/wind-down", label: "Shutting down? Sell it" },
+      { href: "/valuate", label: "Free valuation" },
     ],
   },
 ];
@@ -31,9 +38,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-6xl flex-col gap-10 sm:flex-row sm:justify-between">
         <div className="flex flex-col gap-2">
           <span className="text-lg font-semibold">{BRAND_NAME}</span>
-          <p className="max-w-xs text-sm text-muted-foreground">
-            The exchange for the AI economy.
-          </p>
+          <p className="max-w-xs text-sm text-muted-foreground">{BRAND_TAGLINE}</p>
         </div>
         <div className="flex flex-wrap gap-12">
           {COLUMNS.map((col) => (

@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BuildingIcon, GlobeIcon, BotIcon, DatabaseIcon, PlugIcon, CpuIcon } from "lucide-react";
+import { BuildingIcon, BotIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { ASSET_TYPE_LABELS, ASSET_TYPES } from "@/lib/validation/asset";
+import { ACTIVE_ASSET_TYPES, ASSET_TYPE_LABELS } from "@/lib/validation/asset";
 
 export const metadata: Metadata = { title: "Sell an Asset" };
 
 const ICONS = {
   DIGITAL_BUSINESS: BuildingIcon,
-  DOMAIN: GlobeIcon,
   AI_AGENT: BotIcon,
-  DATASET: DatabaseIcon,
-  API: PlugIcon,
-  COMPUTE: CpuIcon,
 } as const;
 
 export default function SellPage() {
@@ -23,7 +19,7 @@ export default function SellPage() {
         <p className="text-secondary-foreground">Pick a category to start your listing. It goes to our team for review before it&apos;s published.</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        {ASSET_TYPES.map((type) => {
+        {ACTIVE_ASSET_TYPES.map((type) => {
           const Icon = ICONS[type];
           return (
             <Link key={type} href={`/sell/${type.toLowerCase().replace(/_/g, "-")}`}>

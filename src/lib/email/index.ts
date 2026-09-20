@@ -6,7 +6,10 @@ export type EmailEvent =
   | "offer_accepted"
   | "offer_rejected"
   | "counteroffer"
-  | "transaction_update";
+  | "transaction_update"
+  | "mandate_pitch"
+  | "wind_down_lead"
+  | "valuation_lead";
 
 export interface EmailPayload {
   to: string;
@@ -63,6 +66,18 @@ const TEMPLATES: Record<EmailEvent, (data: Record<string, string>) => Pick<Email
   transaction_update: (d) => ({
     subject: `Transaction update: "${d.title}"`,
     body: `The transaction for "${d.title}" is now ${d.status}.`,
+  }),
+  mandate_pitch: (d) => ({
+    subject: `Pitch for mandate ${d.mandateId} from ${d.fromEmail}`,
+    body: d.message,
+  }),
+  wind_down_lead: (d) => ({
+    subject: `Wind-down lead: ${d.url}`,
+    body: `URL: ${d.url}\nMonthly revenue: ${d.monthlyRevenue}\nEmail: ${d.email}`,
+  }),
+  valuation_lead: (d) => ({
+    subject: `Valuation request from ${d.email}`,
+    body: `Category: ${d.assetType}\nMRR: ${d.mrr}\nEstimated range: ${d.estimatedLow}-${d.estimatedHigh}`,
   }),
 };
 

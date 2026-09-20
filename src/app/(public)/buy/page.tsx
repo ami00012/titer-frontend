@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ASSET_TYPE_LABELS, ASSET_TYPES } from "@/lib/validation/asset";
+import { ACTIVE_ASSET_TYPES, ASSET_TYPE_LABELS } from "@/lib/validation/asset";
 
 export const metadata: Metadata = { title: "Buy an Asset" };
 
@@ -38,7 +38,7 @@ export default async function BuyPage() {
           <Label htmlFor="assetType">Asset type (optional)</Label>
           <select id="assetType" name="assetType" className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm">
             <option value="">Any</option>
-            {ASSET_TYPES.map((type) => (
+            {ACTIVE_ASSET_TYPES.map((type) => (
               <option key={type} value={type}>
                 {ASSET_TYPE_LABELS[type]}
               </option>

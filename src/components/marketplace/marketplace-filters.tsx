@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { ASSET_TYPE_LABELS, ASSET_TYPES } from "@/lib/validation/asset";
+import { ACTIVE_ASSET_TYPES, ASSET_TYPE_LABELS } from "@/lib/validation/asset";
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
@@ -39,7 +39,7 @@ export function MarketplaceFilters({ lockedAssetType }: { lockedAssetType?: stri
             onChange={(e) => setParam("type", e.target.value)}
           >
             <option value="">All types</option>
-            {ASSET_TYPES.map((type) => (
+            {ACTIVE_ASSET_TYPES.map((type) => (
               <option key={type} value={type}>
                 {ASSET_TYPE_LABELS[type]}
               </option>
@@ -69,6 +69,40 @@ export function MarketplaceFilters({ lockedAssetType }: { lockedAssetType?: stri
           defaultValue={searchParams.get("priceMax") ?? ""}
           onChange={(e) => setParam("priceMax", e.target.value)}
         />
+        <select
+          className="rounded-md border border-border bg-background px-3 py-1.5"
+          defaultValue={searchParams.get("grade") ?? ""}
+          onChange={(e) => setParam("grade", e.target.value)}
+        >
+          <option value="">Any Titer Score</option>
+          <option value="A">A grade</option>
+          <option value="B">B grade</option>
+          <option value="C">C grade</option>
+          <option value="D">D grade</option>
+        </select>
+        <select
+          className="rounded-md border border-border bg-background px-3 py-1.5"
+          defaultValue={searchParams.get("moat") ?? ""}
+          onChange={(e) => setParam("moat", e.target.value)}
+        >
+          <option value="">Any model risk</option>
+          <option value="PROMPT">Prompt-based moat</option>
+          <option value="PROPRIETARY_DATA">Proprietary data</option>
+          <option value="WORKFLOW">Workflow</option>
+          <option value="DISTRIBUTION">Distribution</option>
+          <option value="INTEGRATION">Integration</option>
+        </select>
+        <select
+          className="rounded-md border border-border bg-background px-3 py-1.5"
+          defaultValue={searchParams.get("maxHoursPerWeek") ?? ""}
+          onChange={(e) => setParam("maxHoursPerWeek", e.target.value)}
+        >
+          <option value="">Any hours/week</option>
+          <option value="1">Under 1 hr/week</option>
+          <option value="5">Under 5 hrs/week</option>
+          <option value="10">Under 10 hrs/week</option>
+          <option value="20">Under 20 hrs/week</option>
+        </select>
         <select
           className="ml-auto rounded-md border border-border bg-background px-3 py-1.5"
           defaultValue={searchParams.get("sort") ?? "newest"}

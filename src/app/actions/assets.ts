@@ -47,6 +47,8 @@ export async function createAsset(assetType: AssetTypeValue, formData: FormData)
       growthRate: base.growthRate,
       customers: base.customers,
       traffic: base.traffic,
+      founderHoursPerWeek: base.founderHoursPerWeek,
+      confidential: base.confidential,
       metadata: metadata as Prisma.InputJsonValue,
       sellerId: user.id,
     },

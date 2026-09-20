@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import type { VerificationStatus, AssetType } from "@prisma/client";
+import type { VerificationStatus } from "@prisma/client";
 
 async function recomputeVerificationSummary(assetId: string) {
   const verifications = await prisma.verification.findMany({ where: { assetId } });
@@ -32,16 +32,6 @@ export async function setUserRole(userId: string, role: "BUYER" | "SELLER" | "AD
   await requireAdmin();
   await prisma.user.update({ where: { id: userId }, data: { role } });
   revalidatePath("/admin/users");
-}
-
-export async function updateCommissionRule(assetType: AssetType, ratePercent: number) {
-  await requireAdmin();
-  await prisma.commissionRule.upsert({
-    where: { assetType },
-    update: { ratePercent },
-    create: { assetType, ratePercent },
-  });
-  revalidatePath("/admin/commission");
 }
 
 export async function updateTransactionStatus(transactionId: string, status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED") {

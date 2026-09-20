@@ -21,6 +21,9 @@ export const baseAssetSchema = z.object({
   traffic: z.coerce.number().int().nonnegative().optional(),
   category: z.string().optional(),
   businessModel: z.string().optional(),
+  founderHoursPerWeek: z.coerce.number().int().nonnegative().optional(),
+  // §2.4 -- name/URL/screenshots hidden on render when true; metrics/score stay public.
+  confidential: z.coerce.boolean().default(false),
 });
 
 export const digitalBusinessMetadataSchema = z.object({
@@ -77,6 +80,13 @@ export const computeMetadataSchema = z.object({
 
 export const ASSET_TYPES = ["DIGITAL_BUSINESS", "DOMAIN", "AI_AGENT", "DATASET", "API", "COMPUTE"] as const;
 export type AssetTypeValue = (typeof ASSET_TYPES)[number];
+
+/**
+ * V1 ships two categories deep, not six shallow (see AGENTS spec §1). The other
+ * four stay in `ASSET_TYPES`/the Prisma enum -- existing rows and admin/back-end
+ * code still work -- they're just hidden from every buyer/seller-facing picker.
+ */
+export const ACTIVE_ASSET_TYPES = ["DIGITAL_BUSINESS", "AI_AGENT"] as const satisfies readonly AssetTypeValue[];
 
 export const metadataSchemaFor: Record<AssetTypeValue, z.ZodTypeAny> = {
   DIGITAL_BUSINESS: digitalBusinessMetadataSchema,

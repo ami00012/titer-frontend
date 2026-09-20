@@ -1,6 +1,13 @@
-import type { Prisma, AssetType } from "@prisma/client";
+import type { Prisma, AssetType, MoatType } from "@prisma/client";
 
 export type MarketplaceSearchParams = Record<string, string | string[] | undefined>;
+
+const GRADE_BAND_RANGES: Record<string, { gte: number; lte: number }> = {
+  A: { gte: 80, lte: 100 },
+  B: { gte: 65, lte: 79 },
+  C: { gte: 50, lte: 64 },
+  D: { gte: 0, lte: 49 },
+};
 
 const SORT_MAP: Record<string, Prisma.AssetOrderByWithRelationInput> = {
   newest: { createdAt: "desc" },
@@ -45,6 +52,19 @@ export function buildMarketplaceQuery(
 
   const businessModel = get("businessModel");
   if (businessModel) where.businessModel = businessModel;
+
+  const gradeBand = get("grade");
+  if (gradeBand && GRADE_BAND_RANGES[gradeBand]) {
+    where.titerScore = { total: GRADE_BAND_RANGES[gradeBand] };
+  }
+
+  const moatType = get("moat");
+  if (moatType) where.moatType = moatType as MoatType;
+
+  const maxHoursPerWeek = get("maxHoursPerWeek");
+  if (maxHoursPerWeek) {
+    where.founderHoursPerWeek = { lte: Number(maxHoursPerWeek) };
+  }
 
   const sort = get("sort") ?? "newest";
   const orderBy = SORT_MAP[sort] ?? SORT_MAP.newest;

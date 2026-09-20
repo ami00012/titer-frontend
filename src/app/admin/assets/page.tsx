@@ -31,6 +31,9 @@ export default async function AdminAssetsPage() {
               </div>
               <div className="flex items-center gap-3">
                 <Badge variant={asset.status === "PUBLISHED" ? "default" : "secondary"}>{ASSET_STATUS_LABELS[asset.status]}</Badge>
+                <Link href={`/admin/assets/${asset.id}`} className="text-sm font-medium hover:underline">
+                  Score &amp; verify
+                </Link>
                 <AssetStatusActions assetId={asset.id} status={asset.status} />
               </div>
             </CardContent>
