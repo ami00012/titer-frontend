@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AssetCard } from "@/components/marketplace/asset-card";
 import { ListingAnimation, VerifyMatchAnimation, BrokerDealAnimation } from "@/components/marketing/how-it-works-animation";
 import { prisma } from "@/lib/db";
-import { BRAND_TAGLINE } from "@/lib/brand";
+import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
+import { OG_SIZE } from "@/lib/og";
 import { computeMedians } from "@/lib/index-medians";
 import { ASSET_TYPE_LABELS, type AssetTypeValue } from "@/lib/validation/asset";
 
@@ -16,7 +17,9 @@ const HOW_IT_WORKS = [
 ];
 
 export const metadata: Metadata = {
-  openGraph: { images: ["/api/og"] },
+  openGraph: {
+    images: [{ url: "/api/og", width: OG_SIZE.width, height: OG_SIZE.height, alt: `${BRAND_NAME} — ${BRAND_TAGLINE}` }],
+  },
 };
 
 export default async function HomePage() {
