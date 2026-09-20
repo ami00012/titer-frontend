@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +14,10 @@ const HOW_IT_WORKS = [
   { title: "We score and verify", body: "Every listing gets a published Titer Score against a public rubric before it goes live — a person pairs buyer mandates against listings by hand.", Animation: VerifyMatchAnimation },
   { title: "We broker the deal", body: "Offers, counters, and acceptance happen on-platform. We facilitate the transaction and take a commission only on close.", Animation: BrokerDealAnimation },
 ];
+
+export const metadata: Metadata = {
+  openGraph: { images: ["/api/og"] },
+};
 
 export default async function HomePage() {
   const [featured, recent, comparables, mandates, openBidWindow] = await Promise.all([

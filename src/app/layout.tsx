@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: `${BRAND_NAME} — ${BRAND_TAGLINE}`, template: `%s — ${BRAND_NAME}` },
-  description: "Buy, sell and rent digital businesses, domains, AI agents, datasets, APIs and compute — brokered end to end.",
+  description: "Titer scores digital businesses and AI agents against a published rubric, proves agents work before they're sold, and brokers the deal.",
 };
 
 export default function RootLayout({
