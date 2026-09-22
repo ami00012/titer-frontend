@@ -13,7 +13,7 @@ export default function ValuatePage() {
         <h1 className="text-2xl font-semibold">What&apos;s it worth?</h1>
         <p className="text-secondary-foreground">
           A quick range, sourced from the same comparables published on the{" "}
-          <a href="/index" className="underline">Titer Index</a>. Free. The full comp list behind your number needs
+          <a href="/titer-index" className="underline">Titer Index</a>. Free. The full comp list behind your number needs
           an email.
         </p>
       </div>

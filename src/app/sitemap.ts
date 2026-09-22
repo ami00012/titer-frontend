@@ -16,7 +16,7 @@ const STATIC_ROUTES = [
   "/mandates",
   "/wind-down",
   "/valuate",
-  "/index",
+  "/titer-index",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

@@ -257,7 +257,7 @@ export default async function AssetDetailPage({ params }: { params: Promise<{ sl
           See recent {ASSET_TYPE_LABELS[asset.assetType as AssetTypeValue].toLowerCase()} multiples on the Titer
           Index.
         </p>
-        <Link href={`/index?type=${categorySlug}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+        <Link href={`/titer-index?type=${categorySlug}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
           View comparables →
         </Link>
       </Section>

@@ -83,7 +83,7 @@ export default async function HomePage() {
           <CardContent className="flex flex-col gap-3">
             <div className="flex items-baseline justify-between">
               <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Titer Index</h3>
-              <Link href="/index" className="text-xs font-medium hover:underline">
+              <Link href="/titer-index" className="text-xs font-medium hover:underline">
                 View all →
               </Link>
             </div>

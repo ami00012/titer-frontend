@@ -28,7 +28,7 @@ export async function createComparable(formData: FormData) {
   });
 
   revalidatePath("/admin/comparables");
-  revalidatePath("/index");
+  revalidatePath("/titer-index");
   revalidatePath("/valuate");
 }
 
@@ -36,6 +36,6 @@ export async function deleteComparable(id: string) {
   await requireAdmin();
   await prisma.comparable.delete({ where: { id } });
   revalidatePath("/admin/comparables");
-  revalidatePath("/index");
+  revalidatePath("/titer-index");
   revalidatePath("/valuate");
 }
