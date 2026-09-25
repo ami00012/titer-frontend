@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { AssetForm } from "@/components/marketplace/asset-form";
+import { SellFormWithAssistant } from "@/components/marketplace/sell-form-with-assistant";
 import { BASE_FIELDS, TYPE_FIELDS } from "@/lib/asset-form-fields";
 import { ASSET_TYPE_LABELS, ASSET_TYPES, type AssetTypeValue } from "@/lib/validation/asset";
 
@@ -30,7 +30,11 @@ export default async function SellTypePage({ params }: { params: Promise<{ type:
         <h1 className="text-2xl font-semibold">List your {ASSET_TYPE_LABELS[assetType].toLowerCase()}</h1>
         <p className="text-secondary-foreground">Your listing goes to our team for review before it&apos;s published.</p>
       </div>
-      <AssetForm assetType={assetType} fields={[...BASE_FIELDS, ...TYPE_FIELDS[assetType]]} />
+      <SellFormWithAssistant
+        assetType={assetType}
+        fields={[...BASE_FIELDS, ...TYPE_FIELDS[assetType]]}
+        aiAssistEnabled={Boolean(process.env.ANTHROPIC_API_KEY)}
+      />
     </div>
   );
 }

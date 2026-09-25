@@ -2,10 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { ZodError } from "zod";
 import { requireUser, requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { sendEmailEvent } from "@/lib/email";
 import { validateAssetSubmission, type AssetTypeValue } from "@/lib/validation/asset";
+import { ASSET_PRICE_CAP } from "@/lib/pricing";
 import type { AssetStatus, Prisma } from "@prisma/client";
 
 function slugify(title: string) {
@@ -26,7 +28,28 @@ export async function createAsset(assetType: AssetTypeValue, formData: FormData)
   const raw = Object.fromEntries(
     Array.from(formData.entries()).filter(([, value]) => value !== ""),
   );
-  const { base, metadata } = validateAssetSubmission(assetType, raw);
+
+  let base: ReturnType<typeof validateAssetSubmission>["base"];
+  let metadata: ReturnType<typeof validateAssetSubmission>["metadata"];
+  try {
+    ({ base, metadata } = validateAssetSubmission(assetType, raw));
+  } catch (err) {
+    // Surface the specific zod issue (e.g. the price-cap message) rather
+    // than the raw ZodError, which serializes to unreadable JSON in the
+    // toast this throws into (see asset-form.tsx).
+    if (err instanceof ZodError) {
+      throw new Error(err.issues[0]?.message ?? "Check the listing details and try again.");
+    }
+    throw err;
+  }
+
+  // Belt-and-suspenders: the cap is also enforced by zod above and by a DB
+  // CHECK constraint (prisma/migrations/20260925000000_asset_price_cap), but
+  // a hard product rule like this gets its own explicit guard rather than
+  // relying solely on validation library behavior staying correct forever.
+  if (base.price !== undefined && base.price > ASSET_PRICE_CAP) {
+    throw new Error("Titer is a micro-marketplace. Listings must be $1,000 or less.");
+  }
 
   const asset = await prisma.asset.create({
     data: {

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ASSET_PRICE_CAP } from "@/lib/pricing";
 
 /**
  * One shared base (title/description/price + common metrics) maps to Asset's
@@ -9,7 +10,15 @@ import { z } from "zod";
 export const baseAssetSchema = z.object({
   title: z.string().min(3).max(140),
   description: z.string().min(20).max(5000),
-  price: z.coerce.number().positive().optional(),
+  // Hard product rule, not just a form nicety: Titer only lists assets at
+  // $1,000 or less. Enforced again server-side in createAsset() and at the
+  // DB layer (see prisma/migrations/20260925000000_asset_price_cap) so this
+  // can't be bypassed by a crafted request or a future write path.
+  price: z.coerce
+    .number()
+    .positive()
+    .max(ASSET_PRICE_CAP, `Titer is a micro-marketplace. Listings must be $${ASSET_PRICE_CAP} or less.`)
+    .optional(),
   currency: z.string().length(3).default("USD"),
   pricingType: z.enum(["FIXED", "NEGOTIABLE", "AUCTION", "MONTHLY", "HOURLY", "USAGE_BASED"]).default("FIXED"),
   revenue: z.coerce.number().nonnegative().optional(),
